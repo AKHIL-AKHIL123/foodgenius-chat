@@ -1,8 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import UserDashboard from './UserDashboard';
-import { X } from 'lucide-react';
+import { X, LogIn, LogOut, User } from 'lucide-react';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import AuthForm from './AuthForm';
+import { useToast } from '@/hooks/use-toast';
 
 interface SidePanelProps {
   isOpen: boolean;
@@ -10,7 +13,20 @@ interface SidePanelProps {
 }
 
 const SidePanel: React.FC<SidePanelProps> = ({ isOpen, onClose }) => {
+  const [showAuthForm, setShowAuthForm] = useState(false);
+  const { user, signOut } = useSupabaseAuth();
+  const { toast } = useToast();
+
   if (!isOpen) return null;
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been signed out successfully.",
+    });
+    setShowAuthForm(false);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -37,9 +53,59 @@ const SidePanel: React.FC<SidePanelProps> = ({ isOpen, onClose }) => {
           </Button>
         </div>
         
-        <div className="p-4">
-          <UserDashboard />
-        </div>
+        {user ? (
+          <div className="p-4">
+            <div className="mb-4 flex items-center justify-between bg-muted rounded-lg p-3">
+              <div className="flex items-center gap-2">
+                <div className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center">
+                  <User size={16} />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">{user.email}</p>
+                  <p className="text-xs text-muted-foreground">Logged in</p>
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleSignOut}
+                className="flex items-center gap-1"
+              >
+                <LogOut size={14} />
+                Sign Out
+              </Button>
+            </div>
+            <UserDashboard />
+          </div>
+        ) : showAuthForm ? (
+          <div className="p-4">
+            <AuthForm />
+            <Button
+              variant="ghost"
+              className="mt-4 w-full"
+              onClick={() => setShowAuthForm(false)}
+            >
+              Skip login for now
+            </Button>
+          </div>
+        ) : (
+          <div className="p-4">
+            <div className="mb-4 bg-muted rounded-lg p-4 text-center">
+              <h3 className="font-medium mb-2">Sign in to save your preferences</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Create an account to save your nutrition preferences, meal plans and track your progress.
+              </p>
+              <Button 
+                onClick={() => setShowAuthForm(true)}
+                className="flex items-center gap-1"
+              >
+                <LogIn size={16} />
+                Sign In / Create Account
+              </Button>
+            </div>
+            <UserDashboard />
+          </div>
+        )}
       </div>
     </div>
   );

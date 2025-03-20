@@ -1,6 +1,9 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserPreferences, defaultUserPreferences } from '@/utils/sampleData';
+import { saveUserPreferences, getUserPreferences } from '@/services/nutritionService';
+import { useSupabaseAuth } from './SupabaseAuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface UserPreferencesContextProps {
   userPreferences: UserPreferences;
@@ -11,59 +14,114 @@ interface UserPreferencesContextProps {
   updateCalorieGoal: (calories: number) => void;
   updateMacroTargets: (macros: Partial<UserPreferences['macroTargets']>) => void;
   resetPreferences: () => void;
+  loading: boolean;
 }
 
 const UserPreferencesContext = createContext<UserPreferencesContextProps | undefined>(undefined);
 
 export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [userPreferences, setUserPreferences] = useState<UserPreferences>(defaultUserPreferences);
+  const [loading, setLoading] = useState(true);
+  const { user } = useSupabaseAuth();
+  const { toast } = useToast();
 
-  // Load preferences from localStorage on mount
+  // Load preferences from Supabase when user is authenticated
   useEffect(() => {
-    const savedPreferences = localStorage.getItem('userPreferences');
-    if (savedPreferences) {
-      try {
-        setUserPreferences(JSON.parse(savedPreferences));
-      } catch (error) {
-        console.error('Error parsing saved preferences:', error);
+    const loadPreferences = async () => {
+      if (user) {
+        setLoading(true);
+        const { success, data, error } = await getUserPreferences(user.id);
+        
+        if (success && data) {
+          setUserPreferences(data);
+        } else if (error) {
+          toast({
+            title: "Error loading preferences",
+            description: "Could not load your nutrition preferences.",
+            variant: "destructive"
+          });
+          console.error('Error loading preferences:', error);
+        }
+        
+        setLoading(false);
+      } else {
+        // Fallback to localStorage when not authenticated
+        const savedPreferences = localStorage.getItem('userPreferences');
+        if (savedPreferences) {
+          try {
+            setUserPreferences(JSON.parse(savedPreferences));
+          } catch (error) {
+            console.error('Error parsing saved preferences:', error);
+          }
+        }
+        setLoading(false);
       }
-    }
-  }, []);
+    };
 
-  // Save preferences to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('userPreferences', JSON.stringify(userPreferences));
-  }, [userPreferences]);
+    loadPreferences();
+  }, [user, toast]);
+
+  // Save preferences to Supabase or localStorage
+  const savePreferences = async (preferences: UserPreferences) => {
+    if (user) {
+      const { success, error } = await saveUserPreferences(user.id, preferences);
+      
+      if (!success) {
+        toast({
+          title: "Error saving preferences",
+          description: "Could not save your nutrition preferences.",
+          variant: "destructive"
+        });
+        console.error('Error saving preferences:', error);
+      }
+    } else {
+      // Fallback to localStorage when not authenticated
+      localStorage.setItem('userPreferences', JSON.stringify(preferences));
+    }
+  };
 
   const updatePreferences = (preferences: Partial<UserPreferences>) => {
-    setUserPreferences(prev => ({ ...prev, ...preferences }));
+    const newPreferences = { ...userPreferences, ...preferences };
+    setUserPreferences(newPreferences);
+    savePreferences(newPreferences);
   };
 
   const updateDietaryRestrictions = (dietaryRestrictions: string[]) => {
-    setUserPreferences(prev => ({ ...prev, dietaryRestrictions }));
+    const newPreferences = { ...userPreferences, dietaryRestrictions };
+    setUserPreferences(newPreferences);
+    savePreferences(newPreferences);
   };
 
   const updateHealthGoals = (healthGoals: string[]) => {
-    setUserPreferences(prev => ({ ...prev, healthGoals }));
+    const newPreferences = { ...userPreferences, healthGoals };
+    setUserPreferences(newPreferences);
+    savePreferences(newPreferences);
   };
 
   const updateAllergies = (allergies: string[]) => {
-    setUserPreferences(prev => ({ ...prev, allergies }));
+    const newPreferences = { ...userPreferences, allergies };
+    setUserPreferences(newPreferences);
+    savePreferences(newPreferences);
   };
 
   const updateCalorieGoal = (dailyCalorieGoal: number) => {
-    setUserPreferences(prev => ({ ...prev, dailyCalorieGoal }));
+    const newPreferences = { ...userPreferences, dailyCalorieGoal };
+    setUserPreferences(newPreferences);
+    savePreferences(newPreferences);
   };
 
   const updateMacroTargets = (macros: Partial<UserPreferences['macroTargets']>) => {
-    setUserPreferences(prev => ({
-      ...prev,
-      macroTargets: { ...prev.macroTargets, ...macros }
-    }));
+    const newPreferences = {
+      ...userPreferences,
+      macroTargets: { ...userPreferences.macroTargets, ...macros }
+    };
+    setUserPreferences(newPreferences);
+    savePreferences(newPreferences);
   };
 
   const resetPreferences = () => {
     setUserPreferences(defaultUserPreferences);
+    savePreferences(defaultUserPreferences);
   };
 
   return (
@@ -77,6 +135,7 @@ export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = 
         updateCalorieGoal,
         updateMacroTargets,
         resetPreferences,
+        loading,
       }}
     >
       {children}
