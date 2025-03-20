@@ -2,6 +2,9 @@
 import React from 'react';
 import { FoodNutrition } from '@/utils/sampleData';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Utensils, Clock, Plus } from 'lucide-react';
 
 interface FoodCardProps {
   food: FoodNutrition;
@@ -27,6 +30,17 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, className }) => {
             {food.calories} <span className="text-xs text-muted-foreground">kcal</span>
           </div>
         </div>
+
+        {/* Dietary tags */}
+        {food.dietaryTags && food.dietaryTags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {food.dietaryTags.map(tag => (
+              <Badge key={tag} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
 
         <div className="grid grid-cols-3 gap-2 mb-4">
           <div className="flex flex-col items-center p-2 rounded-lg bg-secondary">
@@ -82,7 +96,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, className }) => {
           </div>
         </div>
 
-        <div>
+        <div className="mb-4">
           <h4 className="text-sm font-medium mb-2">Health Benefits</h4>
           <ul className="space-y-1">
             {food.benefits.map((benefit, index) => (
@@ -93,6 +107,54 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, className }) => {
             ))}
           </ul>
         </div>
+
+        {/* Meal suggestions */}
+        {food.mealSuggestions && food.mealSuggestions.length > 0 && (
+          <div className="mb-4">
+            <h4 className="text-sm font-medium mb-2 flex items-center gap-1.5">
+              <Utensils size={14} className="text-primary" />
+              Suggested for
+            </h4>
+            <div className="flex flex-wrap gap-1">
+              {food.mealSuggestions.map(meal => (
+                <Badge key={meal} variant="secondary" className="capitalize">
+                  {meal}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Food pairings */}
+        {food.pairsWith && food.pairsWith.length > 0 && (
+          <div>
+            <h4 className="text-sm font-medium mb-2">Pairs well with</h4>
+            <div className="flex flex-wrap gap-2">
+              {food.pairsWith.map(pairing => (
+                <Badge key={pairing} variant="outline" className="flex items-center gap-1 px-2 py-1">
+                  {pairing === 'apple' && '🍎'}
+                  {pairing === 'banana' && '🍌'}
+                  {pairing === 'broccoli' && '🥦'}
+                  {pairing === 'chicken' && '🍗'}
+                  {pairing === 'salmon' && '🐟'}
+                  {pairing}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex justify-between border-t border-slate-200 dark:border-slate-800 p-3">
+        <Button variant="outline" size="sm" className="gap-1">
+          <Clock size={14} />
+          <span>Add to Meal</span>
+        </Button>
+        <Button size="sm" className="gap-1">
+          <Plus size={14} />
+          <span>Track Now</span>
+        </Button>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import FoodCard from './FoodCard';
+import MealPlanCard from './MealPlanCard';
 import { Message } from '@/utils/sampleData';
 import { useTypingEffect } from '@/utils/animations';
 
@@ -31,7 +32,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     )}>
       <div className={cn(
         "max-w-[85%] md:max-w-[75%]",
-        !isUser && message.foodData && "w-full"
+        !isUser && (message.foodData || message.mealPlan) && "w-full"
       )}>
         {!isUser && (
           <div className="flex items-center gap-2 mb-1 ml-1">
@@ -63,6 +64,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         {message.foodData && (
           <div className="mt-3 animate-fade-in" style={{ animationDelay: '0.5s' }}>
             <FoodCard food={message.foodData} />
+          </div>
+        )}
+
+        {message.mealPlan && (
+          <div className="mt-3 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <MealPlanCard mealPlan={message.mealPlan} />
           </div>
         )}
       </div>
