@@ -2,10 +2,12 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import UserDashboard from './UserDashboard';
+import NutritionDashboard from './NutritionDashboard';
 import { X, LogIn, LogOut, User } from 'lucide-react';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import AuthForm from './AuthForm';
 import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface SidePanelProps {
   isOpen: boolean;
@@ -75,7 +77,21 @@ const SidePanel: React.FC<SidePanelProps> = ({ isOpen, onClose }) => {
                 Sign Out
               </Button>
             </div>
-            <UserDashboard />
+            
+            <Tabs defaultValue="preferences">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="preferences">Preferences</TabsTrigger>
+                <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="preferences">
+                <UserDashboard />
+              </TabsContent>
+              
+              <TabsContent value="dashboard">
+                <NutritionDashboard />
+              </TabsContent>
+            </Tabs>
           </div>
         ) : showAuthForm ? (
           <div className="p-4">

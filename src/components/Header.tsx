@@ -1,40 +1,86 @@
 
-import React from 'react';
-import { cn } from '@/lib/utils';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Menu, User } from 'lucide-react';
+import SidePanel from './SidePanel';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 
-interface HeaderProps {
-  className?: string;
-}
+const Header: React.FC = () => {
+  const [sidePanelOpen, setSidePanelOpen] = useState(false);
+  const { user } = useSupabaseAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-const Header: React.FC<HeaderProps> = ({ className }) => {
   return (
-    <header className={cn(
-      "fixed top-0 left-0 right-0 z-10 py-3 glass border-b border-slate-200/20 dark:border-slate-800/20 shadow-sm",
-      className
-    )}>
-      <div className="container flex items-center justify-between">
-        <div className="flex items-center gap-2 animate-fade-in">
-          <div className="relative group">
-            <img 
-              src="/logo.svg" 
-              alt="NutriGuide Logo" 
-              className="w-8 h-8 group-hover:scale-110 transition-transform duration-200" 
-            />
-            <div className="absolute -inset-1 rounded-full bg-primary/10 scale-0 group-hover:scale-100 transition-transform duration-200"></div>
-          </div>
-          <h1 className="text-xl font-medium text-slate-900 dark:text-white">
-            Nutri<span className="text-primary font-semibold">Guide</span>
-          </h1>
+    <header className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center">
+        <div className="mr-4 hidden md:flex" onClick={() => navigate('/')}>
+          <a className="mr-6 flex items-center space-x-2 cursor-pointer">
+            <img src="/logo.svg" alt="NutriGuide" className="h-6 w-6" />
+            <span className="hidden font-bold sm:inline-block">NutriGuide</span>
+          </a>
+          <nav className="flex items-center space-x-6 text-sm font-medium">
+            <a 
+              className={`transition-colors hover:text-foreground/80 ${location.pathname === '/' ? 'text-foreground' : 'text-foreground/60'}`} 
+              href="/"
+            >
+              Chat
+            </a>
+            <a 
+              className={`transition-colors hover:text-foreground/80 ${location.pathname === '/meal-tracker' ? 'text-foreground' : 'text-foreground/60'}`} 
+              href="/meal-tracker"
+            >
+              Meal Tracker
+            </a>
+          </nav>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="flex items-center">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 font-medium border border-emerald-100 dark:border-emerald-900 shadow-sm animate-pulse-subtle">
-              Nutrition Assistant
-            </span>
-          </div>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="mr-2 md:hidden">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle Menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="pr-0">
+            <a className="flex items-center space-x-2" href="/">
+              <img src="/logo.svg" alt="NutriGuide" className="h-6 w-6" />
+              <span className="font-bold">NutriGuide</span>
+            </a>
+            <nav className="flex flex-col gap-4 mt-6">
+              <a 
+                className={`text-sm font-medium transition-colors hover:text-foreground/80 ${location.pathname === '/' ? 'text-foreground' : 'text-foreground/60'}`} 
+                href="/"
+              >
+                Chat
+              </a>
+              <a 
+                className={`text-sm font-medium transition-colors hover:text-foreground/80 ${location.pathname === '/meal-tracker' ? 'text-foreground' : 'text-foreground/60'}`} 
+                href="/meal-tracker"
+              >
+                Meal Tracker
+              </a>
+            </nav>
+          </SheetContent>
+        </Sheet>
+        <a className="mr-6 flex items-center space-x-2 md:hidden" href="/">
+          <img src="/logo.svg" alt="NutriGuide" className="h-6 w-6" />
+          <span className="font-bold">NutriGuide</span>
+        </a>
+        <div className="flex flex-1 items-center space-x-2 justify-end">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setSidePanelOpen(true)}
+            className={`rounded-full ${user ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}`}
+          >
+            <User className="h-5 w-5" />
+            <span className="sr-only">User profile</span>
+          </Button>
         </div>
       </div>
+      <SidePanel isOpen={sidePanelOpen} onClose={() => setSidePanelOpen(false)} />
     </header>
   );
 };
