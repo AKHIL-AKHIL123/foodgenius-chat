@@ -43,10 +43,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         )}
         
         <div className={cn(
-          "rounded-2xl px-4 py-3 break-words text-pretty leading-relaxed",
+          "rounded-2xl px-4 py-3 break-words text-pretty leading-relaxed transition-all",
           isUser
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted/50 backdrop-blur-xs border border-slate-200/50 dark:border-slate-800/50 text-foreground"
+            ? "bg-primary text-primary-foreground shadow-[0_2px_8px_rgba(40,177,132,0.15)]"
+            : "bg-muted/50 backdrop-blur-xs border border-slate-200/50 dark:border-slate-800/50 text-foreground shadow-sm hover:shadow-md",
+          "transform hover:scale-[1.01] transition-all duration-200"
         )}>
           {isLast && !isUser ? displayedText : message.text}
           

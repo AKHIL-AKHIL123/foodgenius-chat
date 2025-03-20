@@ -1,9 +1,12 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import MessageBubble from './MessageBubble';
 import { Message, sampleFoods, welcomeMessage } from '@/utils/sampleData';
 import { v4 as uuidv4 } from 'uuid';
+import { Trash2, Info } from 'lucide-react';
+import { Button } from './ui/button';
+import { Tooltip } from '@/components/ui/tooltip';
+import { TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ChatInterfaceProps {
   className?: string;
@@ -81,13 +84,52 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ className }) => {
     setIsProcessing(false);
   };
 
+  const clearChatHistory = () => {
+    setMessages([welcomeMessage]);
+  };
+
   return (
     <div className={cn(
       "flex flex-col h-full w-full max-w-3xl mx-auto",
       className
     )}>
-      <div className="flex-1 overflow-y-auto py-4 px-4 hide-scrollbar">
-        <div className="space-y-4 pt-16 pb-20">
+      <div className="flex justify-between items-center mb-2 pt-16 px-4">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={clearChatHistory}
+                className="text-muted-foreground hover:text-destructive transition-all"
+              >
+                <Trash2 size={16} className="mr-1" />
+                <span className="text-xs">Clear chat</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Clear the current conversation</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center text-xs text-muted-foreground">
+                <Info size={14} className="mr-1" />
+                <span>Sample foods: banana, apple, chicken, broccoli, salmon</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Try asking about these foods for a demonstration</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+      
+      <div className="flex-1 overflow-y-auto py-1 px-4 hide-scrollbar">
+        <div className="space-y-4 pb-20">
           {messages.map((message, index) => (
             <MessageBubble 
               key={message.id} 
@@ -102,7 +144,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ className }) => {
       <div className="sticky bottom-0 left-0 right-0 p-4">
         <form 
           onSubmit={handleSubmit}
-          className="bg-white dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-800 shadow-soft flex items-center p-2 gap-2 max-w-3xl mx-auto animate-fade-up"
+          className="bg-white dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-800 shadow-lg flex items-center p-2 gap-2 max-w-3xl mx-auto animate-fade-up"
         >
           <input
             type="text"
@@ -119,7 +161,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ className }) => {
               "rounded-full w-8 h-8 flex items-center justify-center transition-all",
               (isProcessing || inputValue.trim() === '') 
                 ? "bg-slate-100 text-slate-400 dark:bg-slate-800" 
-                : "bg-primary text-white hover:bg-primary/90"
+                : "bg-primary text-white hover:bg-primary/90 hover:scale-105 transition-transform"
             )}
           >
             {isProcessing ? (

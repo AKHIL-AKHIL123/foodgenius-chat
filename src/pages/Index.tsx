@@ -12,9 +12,17 @@ const Index = () => {
         <ChatInterface />
       </main>
       
-      <footer className="py-4 text-xs text-center text-muted-foreground">
+      <footer className="py-4 border-t border-slate-200/20 dark:border-slate-800/20 backdrop-blur-sm">
         <div className="container">
-          <p>NutriGuide provides general nutritional information; for personalized advice, please consult a registered nutritionist or medical professional.</p>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-2">
+            <p className="text-xs text-center md:text-left text-muted-foreground">
+              NutriGuide provides general nutritional information; for personalized advice, please consult a registered nutritionist or medical professional.
+            </p>
+            <div className="text-xs text-muted-foreground flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-primary/50"></span>
+              <span>AI-powered nutrition assistant</span>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
