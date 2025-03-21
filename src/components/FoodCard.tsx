@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { FoodNutrition } from '@/utils/sampleData';
 import { cn } from '@/lib/utils';
@@ -22,7 +23,8 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, className }) => {
     ? food as FoodItem 
     : {
         name: food.name,
-        category: 'nutritionInfo' in food ? food.category || 'general' : 'general',
+        // Use a default category if the food doesn't have one
+        category: 'general',
         nutritionInfo: {
           calories: food.calories,
           protein: food.macros.protein,
