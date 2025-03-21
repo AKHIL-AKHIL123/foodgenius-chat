@@ -88,17 +88,19 @@ const FoodDetailModal: React.FC<FoodDetailModalProps> = ({ food, isOpen, onClose
             <Label htmlFor="meal-type" className="text-right">
               Meal
             </Label>
-            <Select value={mealType} onValueChange={(value) => setMealType(value as any)} className="col-span-3">
-              <SelectTrigger id="meal-type">
-                <SelectValue placeholder="Select meal type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="breakfast">Breakfast</SelectItem>
-                <SelectItem value="lunch">Lunch</SelectItem>
-                <SelectItem value="dinner">Dinner</SelectItem>
-                <SelectItem value="snack">Snack</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="col-span-3">
+              <Select value={mealType} onValueChange={(value) => setMealType(value as any)}>
+                <SelectTrigger id="meal-type">
+                  <SelectValue placeholder="Select meal type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="breakfast">Breakfast</SelectItem>
+                  <SelectItem value="lunch">Lunch</SelectItem>
+                  <SelectItem value="dinner">Dinner</SelectItem>
+                  <SelectItem value="snack">Snack</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           
           <div className="grid grid-cols-4 items-center gap-4">

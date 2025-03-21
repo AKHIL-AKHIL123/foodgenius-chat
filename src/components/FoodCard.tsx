@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FoodNutrition } from '@/utils/sampleData';
 import { cn } from '@/lib/utils';
@@ -23,7 +22,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, className }) => {
     ? food as FoodItem 
     : {
         name: food.name,
-        category: food.category || 'general',
+        category: 'nutritionInfo' in food ? food.category || 'general' : 'general',
         nutritionInfo: {
           calories: food.calories,
           protein: food.macros.protein,
@@ -113,7 +112,6 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, className }) => {
             </div>
           )}
 
-          {/* Additional sections only if they exist in the food object */}
           {'nutrients' in food && food.nutrients && (
             <div className="mb-4">
               <h4 className="text-sm font-medium mb-2">Key Nutrients</h4>
@@ -154,7 +152,6 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, className }) => {
             </div>
           )}
 
-          {/* Meal suggestions */}
           {'mealSuggestions' in food && food.mealSuggestions && food.mealSuggestions.length > 0 && (
             <div className="mb-4">
               <h4 className="text-sm font-medium mb-2 flex items-center gap-1.5">
@@ -171,7 +168,6 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, className }) => {
             </div>
           )}
 
-          {/* Food pairings */}
           {'pairsWith' in food && food.pairsWith && food.pairsWith.length > 0 && (
             <div>
               <h4 className="text-sm font-medium mb-2">Pairs well with</h4>
@@ -191,20 +187,18 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, className }) => {
           )}
         </div>
 
-        {/* Action buttons */}
         <div className="flex justify-between border-t border-slate-200 dark:border-slate-800 p-3">
-          <Button variant="outline" size="sm" className="gap-1" onClick={handleAddToMeal}>
+          <Button variant="outline" size="sm" className="gap-1" onClick={() => setAddToMealModalOpen(true)}>
             <Clock size={14} />
             <span>Add to Meal</span>
           </Button>
-          <Button size="sm" className="gap-1" onClick={handleTrackNow}>
+          <Button size="sm" className="gap-1" onClick={() => setTrackNowModalOpen(true)}>
             <Plus size={14} />
             <span>Track Now</span>
           </Button>
         </div>
       </div>
       
-      {/* Track Now Modal */}
       {trackNowModalOpen && (
         <FoodDetailModal 
           food={foodItem}
@@ -213,7 +207,6 @@ const FoodCard: React.FC<FoodCardProps> = ({ food, className }) => {
         />
       )}
       
-      {/* Add to Meal Plan Modal */}
       {addToMealModalOpen && (
         <AddToMealPlanModal 
           food={foodItem}

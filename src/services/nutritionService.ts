@@ -2,6 +2,7 @@
 import { supabase } from '@/lib/supabase';
 import { UserPreferences } from '@/utils/sampleData';
 import { FoodItem, MealLog, MealPlan, NutritionInfo } from '@/types/nutrition';
+import { Json, JsonCompatible } from '@/types/supabase';
 
 // User preferences operations
 export const saveUserPreferences = async (userId: string, preferences: UserPreferences) => {
@@ -10,7 +11,7 @@ export const saveUserPreferences = async (userId: string, preferences: UserPrefe
       .from('user_preferences')
       .upsert({ 
         user_id: userId, 
-        preferences: preferences,
+        preferences: preferences as unknown as Json,
         updated_at: new Date().toISOString()
       }, { 
         onConflict: 'user_id' 
@@ -33,7 +34,7 @@ export const getUserPreferences = async (userId: string) => {
       .single();
     
     if (error) throw error;
-    return { success: true, data: data?.preferences as UserPreferences };
+    return { success: true, data: data?.preferences as unknown as UserPreferences };
   } catch (error) {
     console.error('Error fetching preferences:', error);
     return { success: false, error };
@@ -56,7 +57,7 @@ export const searchFoodItems = async (query: string, limit = 10) => {
       data: data.map(item => ({
         id: item.id,
         name: item.food_name,
-        nutritionInfo: item.nutrition_info as NutritionInfo,
+        nutritionInfo: item.nutrition_info as unknown as NutritionInfo,
         category: (item.nutrition_info as any).category || 'general'
       })) 
     };
@@ -81,7 +82,7 @@ export const getFoodItemById = async (id: number) => {
       data: {
         id: data.id,
         name: data.food_name,
-        nutritionInfo: data.nutrition_info as NutritionInfo,
+        nutritionInfo: data.nutrition_info as unknown as NutritionInfo,
         category: (data.nutrition_info as any).category || 'general'
       } as FoodItem
     };
@@ -100,7 +101,7 @@ export const addFoodItem = async (foodItem: Omit<FoodItem, 'id'>) => {
         nutrition_info: {
           ...foodItem.nutritionInfo,
           category: foodItem.category
-        },
+        } as unknown as Json,
         created_at: new Date().toISOString()
       })
       .select()
@@ -113,7 +114,7 @@ export const addFoodItem = async (foodItem: Omit<FoodItem, 'id'>) => {
       data: {
         id: data.id,
         name: data.food_name,
-        nutritionInfo: data.nutrition_info as NutritionInfo,
+        nutritionInfo: data.nutrition_info as unknown as NutritionInfo,
         category: (data.nutrition_info as any).category || 'general'
       } as FoodItem
     };
@@ -130,7 +131,7 @@ export const logMeal = async (userId: string, mealLog: Omit<MealLog, 'id'>) => {
       .from('meal_logs')
       .insert({
         user_id: userId,
-        meal_data: mealLog,
+        meal_data: mealLog as unknown as Json,
         created_at: new Date().toISOString()
       })
       .select()
@@ -141,7 +142,7 @@ export const logMeal = async (userId: string, mealLog: Omit<MealLog, 'id'>) => {
       success: true, 
       data: { 
         id: data.id, 
-        ...data.meal_data as Omit<MealLog, 'id'>
+        ...data.meal_data as unknown as Omit<MealLog, 'id'>
       } as MealLog 
     };
   } catch (error) {
@@ -173,7 +174,7 @@ export const getUserMealLogs = async (userId: string, startDate?: string, endDat
       success: true, 
       data: data.map(entry => ({
         id: entry.id,
-        ...(entry.meal_data as Omit<MealLog, 'id'>)
+        ...(entry.meal_data as unknown as Omit<MealLog, 'id'>)
       })) as MealLog[]
     };
   } catch (error) {
@@ -190,7 +191,7 @@ export const saveMealPlan = async (userId: string, mealPlan: Omit<MealPlan, 'id'
       .insert({
         user_id: userId,
         plan_name: mealPlan.name,
-        plan_data: mealPlan,
+        plan_data: mealPlan as unknown as Json,
         created_at: new Date().toISOString()
       })
       .select()
@@ -201,7 +202,7 @@ export const saveMealPlan = async (userId: string, mealPlan: Omit<MealPlan, 'id'
       success: true, 
       data: { 
         id: data.id, 
-        ...(data.plan_data as Omit<MealPlan, 'id'>)
+        ...(data.plan_data as unknown as Omit<MealPlan, 'id'>)
       } as MealPlan 
     };
   } catch (error) {
@@ -223,7 +224,7 @@ export const getUserMealPlans = async (userId: string) => {
       success: true, 
       data: data.map(plan => ({
         id: plan.id,
-        ...(plan.plan_data as Omit<MealPlan, 'id'>)
+        ...(plan.plan_data as unknown as Omit<MealPlan, 'id'>)
       })) as MealPlan[]
     };
   } catch (error) {
@@ -246,7 +247,7 @@ export const getMealPlanById = async (userId: string, planId: number) => {
       success: true, 
       data: { 
         id: data.id, 
-        ...(data.plan_data as Omit<MealPlan, 'id'>)
+        ...(data.plan_data as unknown as Omit<MealPlan, 'id'>)
       } as MealPlan 
     };
   } catch (error) {

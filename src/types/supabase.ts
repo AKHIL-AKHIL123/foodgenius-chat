@@ -136,3 +136,14 @@ export interface Database {
     }
   }
 }
+
+// Helper type to allow our custom types to be stored as Json
+export type JsonCompatible<T> = {
+  [K in keyof T]: T[K] extends object
+    ? JsonCompatible<T[K]>
+    : T[K] extends Array<infer U>
+    ? U extends object
+      ? Array<JsonCompatible<U>>
+      : T[K]
+    : T[K];
+};
