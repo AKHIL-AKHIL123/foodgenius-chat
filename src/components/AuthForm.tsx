@@ -3,9 +3,11 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
+import { isSupabaseAuthConfigured } from '@/lib/supabase';
+import { Alert, AlertDescription } from './ui/alert';
 
 interface AuthFormProps {
   isSignUp: boolean;
@@ -20,6 +22,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ isSignUp, onSuccess }) => {
   
   const { signIn, signUp } = useSupabaseAuth();
   const { toast } = useToast();
+  const isConfigured = isSupabaseAuthConfigured();
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -33,6 +36,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ isSignUp, onSuccess }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isConfigured) {
+      setErrorMessage("Authentication is not available. Supabase credentials are not configured.");
+      return;
+    }
+
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -63,6 +72,22 @@ const AuthForm: React.FC<AuthFormProps> = ({ isSignUp, onSuccess }) => {
       setIsLoading(false);
     }
   };
+
+  if (!isConfigured) {
+    return (
+      <div className="space-y-4">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Authentication is not available. Supabase credentials are not configured.
+          </AlertDescription>
+        </Alert>
+        <p className="text-sm text-muted-foreground text-center">
+          To enable authentication, please connect this project to Supabase.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <motion.form 

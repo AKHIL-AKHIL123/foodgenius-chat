@@ -1,18 +1,22 @@
+
 import React, { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import ChatInterface from '@/components/ChatInterface';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { ArrowRight, MessagesSquare, Salad, BrainCircuit, Utensils, Sparkles, ChevronDown } from 'lucide-react';
+import { ArrowRight, MessagesSquare, Salad, BrainCircuit, Utensils, Sparkles, ChevronDown, AlertTriangle } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
 import { useNavigate } from 'react-router-dom';
+import { isSupabaseAuthConfigured } from '@/lib/supabase';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Index = () => {
   const { user } = useSupabaseAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
   const navigate = useNavigate();
+  const isConfigured = isSupabaseAuthConfigured();
 
   // Features list for the landing page
   const features = [
@@ -67,6 +71,18 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col">
       <Header />
+      
+      {/* Supabase configuration warning */}
+      {!isConfigured && (
+        <div className="container mt-4">
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Authentication features are disabled because Supabase is not configured. User registration and login will not work.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
       
       {/* Hero Section */}
       <section className="pt-16 pb-24 md:py-32 container">
