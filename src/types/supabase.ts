@@ -12,89 +12,114 @@ export interface Database {
     Tables: {
       user_preferences: {
         Row: {
-          id: number
-          user_id: string
-          preferences: Json
-          created_at: string
-          updated_at: string
+          id: number;
+          user_id: string;
+          preferences: Json;
+          created_at: string;
+          updated_at: string;
         }
         Insert: {
-          id?: number
-          user_id: string
-          preferences: Json
-          created_at?: string
-          updated_at?: string
+          id?: number;
+          user_id: string;
+          preferences: Json;
+          created_at?: string;
+          updated_at?: string;
         }
         Update: {
-          id?: number
-          user_id?: string
-          preferences?: Json
-          created_at?: string
-          updated_at?: string
+          id?: number;
+          user_id?: string;
+          preferences?: Json;
+          created_at?: string;
+          updated_at?: string;
         }
+        Relationships: [
+          {
+            foreignKeyName: "user_preferences_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       meal_logs: {
         Row: {
-          id: number
-          user_id: string
-          meal_data: Json
-          created_at: string
+          id: number;
+          user_id: string;
+          meal_data: Json;
+          created_at: string;
         }
         Insert: {
-          id?: number
-          user_id: string
-          meal_data: Json
-          created_at?: string
+          id?: number;
+          user_id: string;
+          meal_data: Json;
+          created_at?: string;
         }
         Update: {
-          id?: number
-          user_id?: string
-          meal_data?: Json
-          created_at?: string
+          id?: number;
+          user_id?: string;
+          meal_data?: Json;
+          created_at?: string;
         }
+        Relationships: [
+          {
+            foreignKeyName: "meal_logs_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       meal_plans: {
         Row: {
-          id: number
-          user_id: string
-          plan_name: string
-          plan_data: Json
-          created_at: string
+          id: number;
+          user_id: string;
+          plan_name: string;
+          plan_data: Json;
+          created_at: string;
         }
         Insert: {
-          id?: number
-          user_id: string
-          plan_name: string
-          plan_data: Json
-          created_at?: string
+          id?: number;
+          user_id: string;
+          plan_name: string;
+          plan_data: Json;
+          created_at?: string;
         }
         Update: {
-          id?: number
-          user_id?: string
-          plan_name?: string
-          plan_data?: Json
-          created_at?: string
+          id?: number;
+          user_id?: string;
+          plan_name?: string;
+          plan_data?: Json;
+          created_at?: string;
         }
+        Relationships: [
+          {
+            foreignKeyName: "meal_plans_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       nutrition_data: {
         Row: {
-          id: number
-          food_name: string
-          nutrition_info: Json
-          created_at: string
+          id: number;
+          food_name: string;
+          nutrition_info: Json;
+          created_at: string;
         }
         Insert: {
-          id?: number
-          food_name: string
-          nutrition_info: Json
-          created_at?: string
+          id?: number;
+          food_name: string;
+          nutrition_info: Json;
+          created_at?: string;
         }
         Update: {
-          id?: number
-          food_name?: string
-          nutrition_info?: Json
-          created_at?: string
+          id?: number;
+          food_name?: string;
+          nutrition_info?: Json;
+          created_at?: string;
         }
+        Relationships: []
       }
     }
     Views: {
@@ -104,6 +129,9 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
       [_ in never]: never
     }
   }
