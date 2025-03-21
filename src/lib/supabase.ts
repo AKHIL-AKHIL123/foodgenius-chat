@@ -3,8 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from '../types/supabase';
 
 // These environment variables will be provided by the Supabase integration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Provide default values for development to prevent errors when env vars aren't set
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-url.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
 
 // Create a single supabase client for the entire app with type safety
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
