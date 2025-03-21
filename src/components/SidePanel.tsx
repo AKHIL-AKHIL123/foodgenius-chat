@@ -1,13 +1,11 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import UserDashboard from './UserDashboard';
-import NutritionDashboard from './NutritionDashboard';
-import { X, LogIn, LogOut, User } from 'lucide-react';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
-import AuthForm from './AuthForm';
+import { Button } from '@/components/ui/button';
+import { X, LogOut, UserCircle, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AuthForm from './AuthForm';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SidePanelProps {
   isOpen: boolean;
@@ -15,115 +13,129 @@ interface SidePanelProps {
 }
 
 const SidePanel: React.FC<SidePanelProps> = ({ isOpen, onClose }) => {
-  const [showAuthForm, setShowAuthForm] = useState(false);
   const { user, signOut } = useSupabaseAuth();
   const { toast } = useToast();
-
-  if (!isOpen) return null;
-
+  const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
+  
   const handleSignOut = async () => {
     await signOut();
     toast({
       title: "Signed out",
-      description: "You have been signed out successfully.",
+      description: "You have been signed out successfully"
     });
-    setShowAuthForm(false);
+    onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex">
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm" 
-        onClick={onClose}
-      />
-      
-      {/* Panel */}
-      <div 
-        className={`fixed right-0 top-0 h-full w-full max-w-md bg-background shadow-xl transition-transform overflow-y-auto
-          ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
-      >
-        <div className="sticky top-0 z-10 flex items-center justify-between bg-background p-4 border-b">
-          <h2 className="text-lg font-semibold">Your Nutrition Profile</h2>
-          <Button 
-            variant="ghost" 
-            size="icon"
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/50 z-40"
             onClick={onClose}
-            className="rounded-full h-8 w-8 hover:bg-muted"
+          />
+
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="fixed right-0 top-0 h-screen w-full max-w-md bg-white dark:bg-slate-900 z-50 shadow-lg overflow-y-auto"
           >
-            <X size={18} />
-          </Button>
-        </div>
-        
-        {user ? (
-          <div className="p-4">
-            <div className="mb-4 flex items-center justify-between bg-muted rounded-lg p-3">
-              <div className="flex items-center gap-2">
-                <div className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center">
-                  <User size={16} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">{user.email}</p>
-                  <p className="text-xs text-muted-foreground">Logged in</p>
-                </div>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleSignOut}
-                className="flex items-center gap-1"
-              >
-                <LogOut size={14} />
-                Sign Out
+            <div className="flex justify-between items-center p-4 border-b dark:border-slate-800">
+              <h2 className="text-xl font-semibold">
+                {user ? 'Account' : 'Sign In / Sign Up'}
+              </h2>
+              <Button variant="ghost" size="icon" onClick={onClose}>
+                <X className="h-5 w-5" />
               </Button>
             </div>
-            
-            <Tabs defaultValue="preferences">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="preferences">Preferences</TabsTrigger>
-                <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="preferences">
-                <UserDashboard />
-              </TabsContent>
-              
-              <TabsContent value="dashboard">
-                <NutritionDashboard />
-              </TabsContent>
-            </Tabs>
-          </div>
-        ) : showAuthForm ? (
-          <div className="p-4">
-            <AuthForm />
-            <Button
-              variant="ghost"
-              className="mt-4 w-full"
-              onClick={() => setShowAuthForm(false)}
-            >
-              Skip login for now
-            </Button>
-          </div>
-        ) : (
-          <div className="p-4">
-            <div className="mb-4 bg-muted rounded-lg p-4 text-center">
-              <h3 className="font-medium mb-2">Sign in to save your preferences</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Create an account to save your nutrition preferences, meal plans and track your progress.
-              </p>
-              <Button 
-                onClick={() => setShowAuthForm(true)}
-                className="flex items-center gap-1"
-              >
-                <LogIn size={16} />
-                Sign In / Create Account
-              </Button>
+
+            <div className="p-6">
+              {user ? (
+                <div className="space-y-6">
+                  <div className="flex flex-col items-center justify-center space-y-2 p-6 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                    <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      <UserCircle className="h-10 w-10" />
+                    </div>
+                    <h3 className="text-xl font-medium mt-4">{user.email}</h3>
+                    <p className="text-sm text-muted-foreground">Member since {new Date(user.created_at || Date.now()).toLocaleDateString()}</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Button variant="outline" size="lg" className="w-full justify-start" disabled>
+                      <Settings className="mr-2 h-4 w-4" />
+                      Account Settings
+                    </Button>
+                    
+                    <Button 
+                      variant="destructive" 
+                      size="lg"
+                      className="w-full"
+                      onClick={handleSignOut}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="flex space-x-4 mb-6">
+                    <Button 
+                      variant={activeTab === 'signin' ? 'default' : 'outline'} 
+                      className="flex-1"
+                      onClick={() => setActiveTab('signin')}
+                    >
+                      Sign In
+                    </Button>
+                    <Button 
+                      variant={activeTab === 'signup' ? 'default' : 'outline'} 
+                      className="flex-1"
+                      onClick={() => setActiveTab('signup')}
+                    >
+                      Sign Up
+                    </Button>
+                  </div>
+                  
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeTab}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {activeTab === 'signin' ? (
+                        <div className="space-y-4">
+                          <div className="text-center space-y-2">
+                            <h3 className="text-xl font-medium">Welcome back</h3>
+                            <p className="text-sm text-muted-foreground">Sign in to your NutriGuide account</p>
+                          </div>
+                          <AuthForm isSignUp={false} onSuccess={onClose} />
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="text-center space-y-2">
+                            <h3 className="text-xl font-medium">Create an account</h3>
+                            <p className="text-sm text-muted-foreground">Join NutriGuide and start your nutrition journey</p>
+                          </div>
+                          <AuthForm isSignUp={true} onSuccess={onClose} />
+                        </div>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              )}
             </div>
-            <UserDashboard />
-          </div>
-        )}
-      </div>
-    </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 
