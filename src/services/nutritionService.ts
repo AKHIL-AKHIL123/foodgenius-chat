@@ -31,9 +31,14 @@ export const getUserPreferences = async (userId: string) => {
       .from('user_preferences')
       .select('preferences')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle(); // Use maybeSingle instead of single to handle case where no record exists
     
     if (error) throw error;
+    
+    if (!data) {
+      return { success: false, error: "No preferences found" };
+    }
+    
     return { success: true, data: data?.preferences as unknown as UserPreferences };
   } catch (error) {
     console.error('Error fetching preferences:', error);
@@ -170,6 +175,11 @@ export const getUserMealLogs = async (userId: string, startDate?: string, endDat
     const { data, error } = await query;
     
     if (error) throw error;
+    
+    if (!data || data.length === 0) {
+      return { success: true, data: [] };
+    }
+    
     return { 
       success: true, 
       data: data.map(entry => ({
@@ -262,15 +272,27 @@ export const analyzeUserNutrition = async (userId: string, days = 7) => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
     
-    const { data: success, data, error } = await getUserMealLogs(
+    const result = await getUserMealLogs(
       userId, 
       startDate.toISOString()
     );
     
-    if (error) throw error;
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
     
-    if (!data || !Array.isArray(data)) {
-      return { success: true, data: { days, averages: null, recommendations: [] } };
+    const data = result.data || [];
+    
+    // If no data, return empty analysis to avoid errors
+    if (!data || data.length === 0) {
+      return { 
+        success: true, 
+        data: { 
+          days, 
+          averages: { calories: 0, protein: 0, carbs: 0, fat: 0 }, 
+          recommendations: ["Start tracking your meals to see nutritional insights."] 
+        } 
+      };
     }
     
     // Calculate daily averages
@@ -289,12 +311,31 @@ export const analyzeUserNutrition = async (userId: string, days = 7) => {
       dailyTotals[day].count += 1;
     });
     
-    // Get user preferences for targets
-    const { data: userPreferencesData } = await getUserPreferences(userId);
-    const userPreferences = userPreferencesData || { dailyCalorieGoal: 2000, macroTargets: { protein: 25, carbs: 50, fat: 25 } };
+    // Get user preferences for targets or use defaults
+    let userPreferences;
+    try {
+      const { data: userPreferencesData } = await getUserPreferences(userId);
+      userPreferences = userPreferencesData || { dailyCalorieGoal: 2000, macroTargets: { protein: 25, carbs: 50, fat: 25 } };
+    } catch (error) {
+      console.error("Error getting user preferences for analysis:", error);
+      userPreferences = { dailyCalorieGoal: 2000, macroTargets: { protein: 25, carbs: 50, fat: 25 } };
+    }
     
     // Generate analysis and recommendations
     const dailyEntries = Object.entries(dailyTotals);
+    
+    // Handle case with no entries to avoid division by zero
+    if (dailyEntries.length === 0) {
+      return { 
+        success: true, 
+        data: { 
+          days, 
+          averages: { calories: 0, protein: 0, carbs: 0, fat: 0 }, 
+          recommendations: ["Start tracking your meals to see nutritional insights."] 
+        } 
+      };
+    }
+    
     const averages = {
       calories: dailyEntries.reduce((sum, [_, day]) => sum + day.calories, 0) / dailyEntries.length,
       protein: dailyEntries.reduce((sum, [_, day]) => sum + day.protein, 0) / dailyEntries.length,
@@ -317,6 +358,10 @@ export const analyzeUserNutrition = async (userId: string, days = 7) => {
       recommendations.push(`Your protein intake is below your target. Try to include more lean protein sources like chicken, fish, legumes, or tofu.`);
     }
     
+    if (recommendations.length === 0) {
+      recommendations.push("You're doing well with your nutrition goals. Keep it up!");
+    }
+    
     return {
       success: true,
       data: {
@@ -327,6 +372,13 @@ export const analyzeUserNutrition = async (userId: string, days = 7) => {
     };
   } catch (error) {
     console.error('Error analyzing nutrition:', error);
-    return { success: false, error };
+    return { 
+      success: true, 
+      data: { 
+        days, 
+        averages: { calories: 0, protein: 0, carbs: 0, fat: 0 }, 
+        recommendations: ["Start tracking your meals to see nutritional insights."] 
+      } 
+    };
   }
 };

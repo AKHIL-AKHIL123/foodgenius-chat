@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserPreferences, defaultUserPreferences } from '@/utils/sampleData';
 import { saveUserPreferences, getUserPreferences } from '@/services/nutritionService';
@@ -30,20 +29,22 @@ export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = 
     const loadPreferences = async () => {
       if (user) {
         setLoading(true);
-        const { success, data, error } = await getUserPreferences(user.id);
-        
-        if (success && data) {
-          setUserPreferences(data);
-        } else if (error) {
-          toast({
-            title: "Error loading preferences",
-            description: "Could not load your nutrition preferences.",
-            variant: "destructive"
-          });
+        try {
+          const { success, data, error } = await getUserPreferences(user.id);
+          
+          if (success && data) {
+            setUserPreferences(data);
+          } else {
+            // If we can't get user preferences, initialize with defaults and create them
+            await saveUserPreferences(user.id, defaultUserPreferences);
+            console.log('Created default preferences for user');
+          }
+        } catch (error) {
           console.error('Error loading preferences:', error);
+          // Don't show toast error here, as it's noisy on first login
+        } finally {
+          setLoading(false);
         }
-        
-        setLoading(false);
       } else {
         // Fallback to localStorage when not authenticated
         const savedPreferences = localStorage.getItem('userPreferences');
@@ -59,7 +60,7 @@ export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = 
     };
 
     loadPreferences();
-  }, [user, toast]);
+  }, [user]);
 
   // Save preferences to Supabase or localStorage
   const savePreferences = async (preferences: UserPreferences) => {

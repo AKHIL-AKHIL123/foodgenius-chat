@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNutrition } from '@/hooks/useNutrition';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend, Area, AreaChart, ComposedChart } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend, AreaChart, ComposedChart } from 'recharts';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 import { Skeleton } from './ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -79,12 +79,25 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
   });
   
   const macroData = [
-    { name: 'Protein', value: data?.data?.averages?.protein || 0, goal: (userPreferences.macroTargets.protein / 100) * userPreferences.dailyCalorieGoal / 4 },
-    { name: 'Carbs', value: data?.data?.averages?.carbs || 0, goal: (userPreferences.macroTargets.carbs / 100) * userPreferences.dailyCalorieGoal / 4 },
-    { name: 'Fat', value: data?.data?.averages?.fat || 0, goal: (userPreferences.macroTargets.fat / 100) * userPreferences.dailyCalorieGoal / 9 }
+    { 
+      name: 'Protein', 
+      value: data?.data?.averages?.protein || 0, 
+      goal: (userPreferences.macroTargets.protein / 100) * userPreferences.dailyCalorieGoal / 4 
+    },
+    { 
+      name: 'Carbs', 
+      value: data?.data?.averages?.carbs || 0, 
+      goal: (userPreferences.macroTargets.carbs / 100) * userPreferences.dailyCalorieGoal / 4 
+    },
+    { 
+      name: 'Fat', 
+      value: data?.data?.averages?.fat || 0, 
+      goal: (userPreferences.macroTargets.fat / 100) * userPreferences.dailyCalorieGoal / 9 
+    }
   ];
   
   const calculatePercentage = (value: number, goal: number) => {
+    if (goal <= 0) return 0;
     return (value / goal) * 100;
   };
   
@@ -107,17 +120,23 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
   
   const calorieStatus = getCalorieStatus();
   
-  if (!data?.data?.averages && (!mealLogsData?.data || mealLogsData.data.length === 0)) {
+  if ((!data?.data?.averages || data.data.averages.calories === 0) && 
+      (!mealLogsData?.data || mealLogsData.data.length === 0)) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Nutrition Analysis</CardTitle>
-          <CardDescription>Not enough data</CardDescription>
+          <CardDescription>Start tracking your meals</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
-            Start logging your meals to see nutrition insights.
-          </p>
+          <div className="py-8 text-center">
+            <p className="text-muted-foreground mb-2">
+              No meal data available yet. Start logging your meals to see nutrition insights.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Your daily calorie goal is set to {userPreferences.dailyCalorieGoal} calories.
+            </p>
+          </div>
         </CardContent>
       </Card>
     );

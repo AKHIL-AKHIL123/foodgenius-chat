@@ -1,4 +1,3 @@
-
 import React, { useState, lazy, Suspense } from 'react';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
@@ -6,44 +5,59 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNutrition } from '@/hooks/useNutrition';
-import { Loader2, Plus, Search, X, Info } from 'lucide-react';
+import { Loader2, Plus, Search, X, Info, AlertTriangle } from 'lucide-react';
 import { FoodItem, MealLog } from '@/types/nutrition';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useUserPreferences } from '@/contexts/UserPreferencesContext';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-// Lazy load the NutritionAnalysis component to improve initial loading time
-const NutritionAnalysis = lazy(() => import('@/components/NutritionAnalysis'));
+const NutritionAnalysis = lazy(() => 
+  import('@/components/NutritionAnalysis').then(module => ({
+    default: module.default
+  }))
+);
 
 const MealTracker: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [mealType, setMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('breakfast');
   const [selectedFoods, setSelectedFoods] = useState<FoodItem[]>([]);
+  const { userPreferences, loading: preferencesLoading } = useUserPreferences();
   
   const { useSearchFood, useLogMeal, useMealLogs } = useNutrition();
   const { toast } = useToast();
   
-  // Only search when query has at least 2 characters, to reduce unnecessary API calls
-  const { data: searchResults, isLoading: searchLoading } = useSearchFood(searchQuery, searchQuery.length >= 2);
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+  
+  const { data: searchResults, isLoading: searchLoading } = useSearchFood(debouncedQuery, debouncedQuery.length >= 2);
   const { mutate: logMeal, isPending: isLogging } = useLogMeal();
   
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - 30);
-  const { data: mealLogsData, isLoading: logsLoading } = useMealLogs(startDate.toISOString());
+  const { data: mealLogsData, isLoading: logsLoading, error: logsError } = useMealLogs(startDate.toISOString());
   
   const handleAddFood = (food: FoodItem) => {
     setSelectedFoods(prev => [...prev, food]);
     setSearchQuery('');
+    setDebouncedQuery('');
   };
   
   const handleRemoveFood = (index: number) => {
     setSelectedFoods(prev => prev.filter((_, i) => i !== index));
   };
   
-  // Memoize the totals calculation to avoid unnecessary recalculations
   const calculateTotals = React.useMemo(() => {
     return selectedFoods.reduce((acc, food) => {
       return {
@@ -87,13 +101,26 @@ const MealTracker: React.FC = () => {
     });
   };
   
-  // Optimized version of the meal history
   const renderMealHistory = () => {
     if (logsLoading) {
       return (
-        <div className="flex justify-center p-6">
-          <Loader2 size={24} className="animate-spin text-muted-foreground" />
+        <div className="space-y-4 p-4">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
         </div>
+      );
+    }
+    
+    if (logsError) {
+      return (
+        <Alert variant="destructive" className="my-4">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Error loading meal history</AlertTitle>
+          <AlertDescription>
+            There was a problem loading your meal history. Please try again later.
+          </AlertDescription>
+        </Alert>
       );
     }
     
@@ -107,7 +134,6 @@ const MealTracker: React.FC = () => {
       );
     }
     
-    // Group meals by date
     const mealsByDate = mealLogsData.data.reduce((acc: Record<string, any[]>, meal: MealLog) => {
       const date = format(new Date(meal.date), 'yyyy-MM-dd');
       if (!acc[date]) acc[date] = [];
@@ -162,7 +188,14 @@ const MealTracker: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 flex flex-col">
       <Header />
       
-      <main className="flex-1 container py-6">
+      {preferencesLoading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Skeleton className="h-[600px] w-full" />
+          </div>
+          <Skeleton className="h-[600px] w-full" />
+        </div>
+      ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Card>
@@ -357,13 +390,13 @@ const MealTracker: React.FC = () => {
                 <CardTitle>Meal History</CardTitle>
                 <CardDescription>Your logged meals from the past 30 days</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="max-h-[800px] overflow-y-auto">
                 {renderMealHistory()}
               </CardContent>
             </Card>
           </div>
         </div>
-      </main>
+      )}
     </div>
   );
 };
