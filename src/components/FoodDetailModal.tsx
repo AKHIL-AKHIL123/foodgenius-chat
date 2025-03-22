@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,16 @@ const FoodDetailModal: React.FC<FoodDetailModalProps> = ({ food, isOpen, onClose
   const { useLogMeal } = useNutrition();
   const { toast } = useToast();
   const { mutate: logMeal, isPending } = useLogMeal();
+  
+  // Pre-calculate scaled nutrition values to avoid recalculation in render
+  const calculatedNutrition = {
+    calories: (food.nutritionInfo.calories * quantity).toFixed(1),
+    protein: (food.nutritionInfo.protein * quantity).toFixed(1),
+    carbs: (food.nutritionInfo.carbs * quantity).toFixed(1),
+    fat: (food.nutritionInfo.fat * quantity).toFixed(1),
+    fiber: food.nutritionInfo.fiber ? (food.nutritionInfo.fiber * quantity).toFixed(1) : undefined,
+    sugar: food.nutritionInfo.sugar ? (food.nutritionInfo.sugar * quantity).toFixed(1) : undefined,
+  };
   
   const handleTrackNow = () => {
     // Clone the food item and scale the nutrition info based on quantity
@@ -63,14 +73,20 @@ const FoodDetailModal: React.FC<FoodDetailModalProps> = ({ food, isOpen, onClose
     });
   };
   
+  // Only render the dialog content when the dialog is open to improve performance
+  if (!isOpen) return null;
+  
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Track {food.name}</DialogTitle>
+          <DialogDescription>
+            Add this food to your meal log with your preferred quantity and meal type.
+          </DialogDescription>
         </DialogHeader>
         
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 py-2">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="date" className="text-right">
               Date
@@ -118,28 +134,28 @@ const FoodDetailModal: React.FC<FoodDetailModalProps> = ({ food, isOpen, onClose
             />
           </div>
           
-          <div className="bg-muted p-3 rounded-md mt-2">
+          <div className="bg-muted p-3 rounded-md mt-1">
             <div className="text-sm font-medium mb-2">Nutrition (adjusted for quantity)</div>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>Calories: {(food.nutritionInfo.calories * quantity).toFixed(1)}</div>
-              <div>Protein: {(food.nutritionInfo.protein * quantity).toFixed(1)}g</div>
-              <div>Carbs: {(food.nutritionInfo.carbs * quantity).toFixed(1)}g</div>
-              <div>Fat: {(food.nutritionInfo.fat * quantity).toFixed(1)}g</div>
-              {food.nutritionInfo.fiber && (
-                <div>Fiber: {(food.nutritionInfo.fiber * quantity).toFixed(1)}g</div>
+              <div>Calories: {calculatedNutrition.calories}</div>
+              <div>Protein: {calculatedNutrition.protein}g</div>
+              <div>Carbs: {calculatedNutrition.carbs}g</div>
+              <div>Fat: {calculatedNutrition.fat}g</div>
+              {calculatedNutrition.fiber && (
+                <div>Fiber: {calculatedNutrition.fiber}g</div>
               )}
-              {food.nutritionInfo.sugar && (
-                <div>Sugar: {(food.nutritionInfo.sugar * quantity).toFixed(1)}g</div>
+              {calculatedNutrition.sugar && (
+                <div>Sugar: {calculatedNutrition.sugar}g</div>
               )}
             </div>
           </div>
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} type="button">
             Cancel
           </Button>
-          <Button onClick={handleTrackNow} disabled={isPending}>
+          <Button onClick={handleTrackNow} disabled={isPending} type="button">
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
