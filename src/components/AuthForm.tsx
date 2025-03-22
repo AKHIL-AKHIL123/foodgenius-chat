@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
-import { AlertCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { AlertCircle, Loader2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { isSupabaseAuthConfigured } from '@/lib/supabase';
@@ -12,13 +12,15 @@ import { Alert, AlertDescription } from './ui/alert';
 interface AuthFormProps {
   isSignUp: boolean;
   onSuccess?: () => void;
+  onSwitchMode?: () => void;
 }
 
-const AuthForm: React.FC<AuthFormProps> = ({ isSignUp, onSuccess }) => {
+const AuthForm: React.FC<AuthFormProps> = ({ isSignUp, onSuccess, onSwitchMode }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   
   const { signIn, signUp } = useSupabaseAuth();
   const { toast } = useToast();
@@ -34,6 +36,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ isSignUp, onSuccess }) => {
     setErrorMessage(null);
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -46,25 +52,42 @@ const AuthForm: React.FC<AuthFormProps> = ({ isSignUp, onSuccess }) => {
     setErrorMessage(null);
 
     try {
-      const { error } = isSignUp 
-        ? await signUp(email, password)
-        : await signIn(email, password);
-      
-      if (error) {
-        setErrorMessage(error.message);
-        toast({
-          title: isSignUp ? "Sign up failed" : "Sign in failed",
-          description: error.message,
-          variant: "destructive"
-        });
+      if (isSignUp) {
+        // Sign up with email password
+        const { error } = await signUp(email, password);
+        
+        if (error) {
+          setErrorMessage(error.message);
+          toast({
+            title: "Sign up failed",
+            description: error.message,
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Sign up successful",
+            description: "Your account has been created successfully.",
+          });
+          if (onSwitchMode) onSwitchMode(); // Switch to sign in mode
+        }
       } else {
-        toast({
-          title: isSignUp ? "Sign up successful" : "Signed in successfully",
-          description: isSignUp 
-            ? "Please check your email to confirm your account."
-            : "Welcome back to NutriGuide!",
-        });
-        if (onSuccess) onSuccess();
+        // Sign in with email password
+        const { error } = await signIn(email, password);
+        
+        if (error) {
+          setErrorMessage(error.message);
+          toast({
+            title: "Sign in failed",
+            description: error.message,
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Signed in successfully",
+            description: "Welcome back to NutriGuide!",
+          });
+          if (onSuccess) onSuccess();
+        }
       }
     } catch (error: any) {
       setErrorMessage(error.message || 'An unexpected error occurred');
@@ -112,16 +135,27 @@ const AuthForm: React.FC<AuthFormProps> = ({ isSignUp, onSuccess }) => {
       
       <div className="space-y-2">
         <label htmlFor="password" className="text-sm font-medium">Password</label>
-        <Input 
-          id="password" 
-          type="password"
-          value={password}
-          onChange={handlePasswordChange}
-          required 
-          placeholder="********"
-          minLength={6}
-          className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-        />
+        <div className="relative">
+          <Input 
+            id="password" 
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={handlePasswordChange}
+            required 
+            placeholder="********"
+            minLength={6}
+            className="transition-all duration-200 focus:ring-2 focus:ring-primary/20 pr-10"
+          />
+          <Button
+            type="button"
+            variant="ghost" 
+            size="icon"
+            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+            onClick={togglePasswordVisibility}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </Button>
+        </div>
         {isSignUp && (
           <p className="text-xs text-muted-foreground">Password must be at least 6 characters long</p>
         )}
@@ -152,6 +186,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ isSignUp, onSuccess }) => {
           isSignUp ? 'Create Account' : 'Sign In'
         )}
       </Button>
+      
+      <div className="text-center">
+        <button 
+          type="button" 
+          onClick={onSwitchMode}
+          className="text-sm text-primary hover:text-primary/80 hover:underline focus:outline-none"
+        >
+          {isSignUp ? 'Already have an account? Sign in' : 'Need an account? Sign up'}
+        </button>
+      </div>
     </motion.form>
   );
 };

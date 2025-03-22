@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
-import { X, LogOut, UserCircle, Settings } from 'lucide-react';
+import { X, LogOut, UserCircle, Settings, ChevronLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AuthForm from './AuthForm';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,6 +25,10 @@ const SidePanel: React.FC<SidePanelProps> = ({ isOpen, onClose }) => {
     });
     onClose();
   };
+  
+  const handleSwitchMode = () => {
+    setActiveTab(activeTab === 'signin' ? 'signup' : 'signin');
+  };
 
   return (
     <AnimatePresence>
@@ -35,7 +39,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ isOpen, onClose }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
             onClick={onClose}
           />
 
@@ -47,10 +51,13 @@ const SidePanel: React.FC<SidePanelProps> = ({ isOpen, onClose }) => {
             className="fixed right-0 top-0 h-screen w-full max-w-md bg-white dark:bg-slate-900 z-50 shadow-lg overflow-y-auto"
           >
             <div className="flex justify-between items-center p-4 border-b dark:border-slate-800">
-              <h2 className="text-xl font-semibold">
+              <h2 className="text-xl font-semibold flex items-center">
+                <Button variant="ghost" size="icon" onClick={onClose} className="mr-2 md:hidden">
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
                 {user ? 'Account' : 'Sign In / Sign Up'}
               </h2>
-              <Button variant="ghost" size="icon" onClick={onClose}>
+              <Button variant="ghost" size="icon" onClick={onClose} className="hidden md:flex">
                 <X className="h-5 w-5" />
               </Button>
             </div>
@@ -116,7 +123,11 @@ const SidePanel: React.FC<SidePanelProps> = ({ isOpen, onClose }) => {
                             <h3 className="text-xl font-medium">Welcome back</h3>
                             <p className="text-sm text-muted-foreground">Sign in to your NutriGuide account</p>
                           </div>
-                          <AuthForm isSignUp={false} onSuccess={onClose} />
+                          <AuthForm 
+                            isSignUp={false} 
+                            onSuccess={onClose} 
+                            onSwitchMode={handleSwitchMode}
+                          />
                         </div>
                       ) : (
                         <div className="space-y-4">
@@ -124,7 +135,17 @@ const SidePanel: React.FC<SidePanelProps> = ({ isOpen, onClose }) => {
                             <h3 className="text-xl font-medium">Create an account</h3>
                             <p className="text-sm text-muted-foreground">Join NutriGuide and start your nutrition journey</p>
                           </div>
-                          <AuthForm isSignUp={true} onSuccess={onClose} />
+                          <AuthForm 
+                            isSignUp={true} 
+                            onSuccess={() => {
+                              setActiveTab('signin');
+                              toast({
+                                title: "Account created",
+                                description: "Please sign in with your new credentials"
+                              });
+                            }}
+                            onSwitchMode={handleSwitchMode}
+                          />
                         </div>
                       )}
                     </motion.div>

@@ -62,11 +62,13 @@ export const SupabaseAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   const signUp = async (email: string, password: string) => {
+    // Sign up without email confirmation
     const { error } = await supabase.auth.signUp({ 
       email, 
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        // No email redirection, skip email verification
+        emailRedirectTo: undefined
       }
     });
     return { error };

@@ -13,6 +13,10 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, activeTab, setActiveTab }) => {
+  const handleSwitchMode = () => {
+    setActiveTab(activeTab === 'signin' ? 'signup' : 'signin');
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -27,9 +31,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, activeTab, setAc
             >
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'signin' | 'signup')}>
                 <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b dark:border-slate-700">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="signin">Sign In</TabsTrigger>
-                    <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-2 relative z-10">
+                    <TabsTrigger value="signin" className="text-sm md:text-base">Sign In</TabsTrigger>
+                    <TabsTrigger value="signup" className="text-sm md:text-base">Sign Up</TabsTrigger>
                   </TabsList>
                 </div>
                 
@@ -42,7 +46,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, activeTab, setAc
                           Enter your credentials to sign in to your account
                         </p>
                       </div>
-                      <AuthForm isSignUp={false} onSuccess={onClose} />
+                      <AuthForm 
+                        isSignUp={false} 
+                        onSuccess={onClose} 
+                        onSwitchMode={handleSwitchMode}
+                      />
                     </div>
                   </TabsContent>
                   
@@ -54,7 +62,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, activeTab, setAc
                           Enter your details to create your NutriGuide account
                         </p>
                       </div>
-                      <AuthForm isSignUp={true} onSuccess={onClose} />
+                      <AuthForm 
+                        isSignUp={true} 
+                        onSuccess={onClose} 
+                        onSwitchMode={handleSwitchMode}
+                      />
                     </div>
                   </TabsContent>
                 </div>
