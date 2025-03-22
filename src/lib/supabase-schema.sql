@@ -1,4 +1,5 @@
 
+
 -- Create tables for NutriGuide application
 
 -- User Preferences Table
@@ -105,3 +106,4 @@ CREATE POLICY "All users can view nutrition data"
 
 -- Only admins can insert/update nutrition data
 -- Note: You'll need to create an admin role or use a different mechanism for admin access
+
