@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNutrition } from '@/hooks/useNutrition';
@@ -8,7 +7,7 @@ import { Skeleton } from './ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format, subDays, isSameDay } from 'date-fns';
 import { Badge } from './ui/badge';
-import { InfoCircle, TrendingUp, TrendingDown, Activity } from 'lucide-react';
+import { Info, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 
 interface NutritionAnalysisProps {
   days?: number;
@@ -45,7 +44,6 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
     );
   }
   
-  // Process data for charts
   const dailyData = Array.from({ length: days }).map((_, index) => {
     const date = subDays(new Date(), days - 1 - index);
     const dayMeals = mealLogsData?.data?.filter(meal => 
@@ -370,7 +368,7 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
               {data?.data?.recommendations && data.data.recommendations.length > 0 && (
                 <div className="mt-4">
                   <h3 className="text-sm font-medium mb-2 flex items-center gap-1">
-                    <InfoCircle className="h-4 w-4" />
+                    <Info className="h-4 w-4" />
                     Recommendations
                   </h3>
                   <ul className="space-y-2">
