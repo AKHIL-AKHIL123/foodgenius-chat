@@ -88,8 +88,12 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
     return <NutritionAnalysisEmpty calorieGoal={userPreferences.dailyCalorieGoal} />;
   }
   
-  // Extract averages with default values to ensure they're not undefined
-  const averages = {
+  // Extract averages with default values to ensure they're not undefined and explicitly type them as required
+  const averages: {
+    protein: number;
+    carbs: number;
+    fat: number;
+  } = {
     protein: data?.data?.averages?.protein || 0,
     carbs: data?.data?.averages?.carbs || 0,
     fat: data?.data?.averages?.fat || 0
