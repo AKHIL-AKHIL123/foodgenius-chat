@@ -61,6 +61,7 @@ export const useNutritionAnalysisData = (days: number = 7) => {
   
   // Create properly typed averages object with non-optional properties
   const averages = useMemo(() => {
+    // Fixed: Ensure all properties are non-optional by providing default values
     return {
       protein: Number(data?.data?.averages?.protein || 0),
       carbs: Number(data?.data?.averages?.carbs || 0),
