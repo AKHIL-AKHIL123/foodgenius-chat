@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNutrition } from '@/hooks/useNutrition';
@@ -30,7 +29,6 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
     return <NutritionAnalysisLoading days={days} />;
   }
   
-  // Prepare data for charts
   const dailyData = Array.from({ length: days }).map((_, index) => {
     const date = subDays(new Date(), days - 1 - index);
     const dayMeals = mealLogsData?.data?.filter(meal => 
@@ -65,30 +63,11 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
     };
   });
   
-  const macroData = [
-    { 
-      name: 'Protein', 
-      value: data?.data?.averages?.protein || 0, 
-      goal: (userPreferences.macroTargets.protein / 100) * userPreferences.dailyCalorieGoal / 4 
-    },
-    { 
-      name: 'Carbs', 
-      value: data?.data?.averages?.carbs || 0, 
-      goal: (userPreferences.macroTargets.carbs / 100) * userPreferences.dailyCalorieGoal / 4 
-    },
-    { 
-      name: 'Fat', 
-      value: data?.data?.averages?.fat || 0, 
-      goal: (userPreferences.macroTargets.fat / 100) * userPreferences.dailyCalorieGoal / 9 
-    }
-  ];
-  
   if ((!data?.data?.averages || data.data.averages.calories === 0) && 
       (!mealLogsData?.data || mealLogsData.data.length === 0)) {
     return <NutritionAnalysisEmpty calorieGoal={userPreferences.dailyCalorieGoal} />;
   }
   
-  // Extract averages with default values to ensure they're not undefined and explicitly type them as required
   const averages: {
     protein: number;
     carbs: number;
@@ -98,6 +77,24 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
     carbs: data?.data?.averages?.carbs || 0,
     fat: data?.data?.averages?.fat || 0
   };
+  
+  const macroData = [
+    { 
+      name: 'Protein', 
+      value: averages.protein, 
+      goal: (userPreferences.macroTargets.protein / 100) * userPreferences.dailyCalorieGoal / 4 
+    },
+    { 
+      name: 'Carbs', 
+      value: averages.carbs, 
+      goal: (userPreferences.macroTargets.carbs / 100) * userPreferences.dailyCalorieGoal / 4 
+    },
+    { 
+      name: 'Fat', 
+      value: averages.fat, 
+      goal: (userPreferences.macroTargets.fat / 100) * userPreferences.dailyCalorieGoal / 9 
+    }
+  ];
   
   return (
     <Card className="overflow-hidden">
