@@ -1,7 +1,7 @@
 
 import React, { lazy, Suspense } from 'react';
 import Header from '@/components/Header';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNutrition } from '@/hooks/useNutrition';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -56,7 +56,9 @@ const MealTracker: React.FC = () => {
                   <Skeleton className="h-6 w-48" />
                   <Skeleton className="h-4 w-72 mt-2" />
                 </CardHeader>
-                <Skeleton className="h-[350px] w-full px-6" />
+                <CardContent>
+                  <Skeleton className="h-[350px] w-full" />
+                </CardContent>
               </Card>
             }>
               <NutritionAnalysis days={7} />
@@ -71,7 +73,7 @@ const MealTracker: React.FC = () => {
               </CardHeader>
               <CardContent className="max-h-[800px] overflow-y-auto">
                 <MealHistory 
-                  mealLogsData={mealLogsData} 
+                  mealLogsData={mealLogsData ? { data: mealLogsData.data || [] } : { data: [] }} 
                   logsLoading={logsLoading} 
                   logsError={logsError} 
                 />

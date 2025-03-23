@@ -88,6 +88,13 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
     return <NutritionAnalysisEmpty calorieGoal={userPreferences.dailyCalorieGoal} />;
   }
   
+  // Extract averages with default values to ensure they're not undefined
+  const averages = {
+    protein: data?.data?.averages?.protein || 0,
+    carbs: data?.data?.averages?.carbs || 0,
+    fat: data?.data?.averages?.fat || 0
+  };
+  
   return (
     <Card className="overflow-hidden">
       <CardHeader>
@@ -121,11 +128,7 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
             <TabsContent value="macros" className="pt-2">
               <MacrosChart 
                 macroData={macroData}
-                averages={{
-                  protein: data?.data?.averages?.protein || 0,
-                  carbs: data?.data?.averages?.carbs || 0,
-                  fat: data?.data?.averages?.fat || 0
-                }}
+                averages={averages}
                 macroTargets={userPreferences.macroTargets}
               />
             </TabsContent>
