@@ -59,12 +59,14 @@ export const useNutritionAnalysisData = (days: number = 7) => {
     });
   }, [mealLogsData?.data]);
   
-  // Create properly typed averages object
-  const averages: { protein: number; carbs: number; fat: number; } = useMemo(() => ({
-    protein: Number(data?.data?.averages?.protein || 0),
-    carbs: Number(data?.data?.averages?.carbs || 0),
-    fat: Number(data?.data?.averages?.fat || 0)
-  }), [data?.data?.averages]);
+  // Create properly typed averages object with non-optional properties
+  const averages = useMemo(() => {
+    return {
+      protein: Number(data?.data?.averages?.protein || 0),
+      carbs: Number(data?.data?.averages?.carbs || 0),
+      fat: Number(data?.data?.averages?.fat || 0)
+    };
+  }, [data?.data?.averages]);
   
   // Create macro data for the charts
   const macroData = useMemo(() => [
