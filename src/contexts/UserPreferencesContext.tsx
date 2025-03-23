@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { UserPreferences, defaultUserPreferences } from '@/utils/sampleData';
 import { saveUserPreferences, getUserPreferences } from '@/services/nutritionService';
 import { useSupabaseAuth } from './SupabaseAuthContext';
@@ -27,9 +28,10 @@ export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = 
   // Load preferences from Supabase when user is authenticated
   useEffect(() => {
     const loadPreferences = async () => {
-      if (user) {
-        setLoading(true);
-        try {
+      setLoading(true);
+      
+      try {
+        if (user) {
           const { success, data, error } = await getUserPreferences(user.id);
           
           if (success && data) {
@@ -38,23 +40,25 @@ export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = 
             // If we can't get user preferences, initialize with defaults and create them
             await saveUserPreferences(user.id, defaultUserPreferences);
             console.log('Created default preferences for user');
+            setUserPreferences(defaultUserPreferences);
           }
-        } catch (error) {
-          console.error('Error loading preferences:', error);
-          // Don't show toast error here, as it's noisy on first login
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        // Fallback to localStorage when not authenticated
-        const savedPreferences = localStorage.getItem('userPreferences');
-        if (savedPreferences) {
-          try {
-            setUserPreferences(JSON.parse(savedPreferences));
-          } catch (error) {
-            console.error('Error parsing saved preferences:', error);
+        } else {
+          // Fallback to localStorage when not authenticated
+          const savedPreferences = localStorage.getItem('userPreferences');
+          if (savedPreferences) {
+            try {
+              setUserPreferences(JSON.parse(savedPreferences));
+            } catch (error) {
+              console.error('Error parsing saved preferences:', error);
+              setUserPreferences(defaultUserPreferences);
+            }
           }
         }
+      } catch (error) {
+        console.error('Error loading preferences:', error);
+        // Ensure we always have default preferences even if there's an error
+        setUserPreferences(defaultUserPreferences);
+      } finally {
         setLoading(false);
       }
     };
@@ -63,67 +67,88 @@ export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = 
   }, [user]);
 
   // Save preferences to Supabase or localStorage
-  const savePreferences = async (preferences: UserPreferences) => {
+  const savePreferences = useCallback(async (preferences: UserPreferences) => {
     if (user) {
-      const { success, error } = await saveUserPreferences(user.id, preferences);
-      
-      if (!success) {
+      try {
+        const { success, error } = await saveUserPreferences(user.id, preferences);
+        
+        if (!success) {
+          toast({
+            title: "Error saving preferences",
+            description: "Could not save your nutrition preferences.",
+            variant: "destructive"
+          });
+          console.error('Error saving preferences:', error);
+        }
+      } catch (error) {
+        console.error('Exception saving preferences:', error);
         toast({
           title: "Error saving preferences",
-          description: "Could not save your nutrition preferences.",
+          description: "An unexpected error occurred.",
           variant: "destructive"
         });
-        console.error('Error saving preferences:', error);
       }
     } else {
       // Fallback to localStorage when not authenticated
       localStorage.setItem('userPreferences', JSON.stringify(preferences));
     }
-  };
+  }, [user, toast]);
 
-  const updatePreferences = (preferences: Partial<UserPreferences>) => {
-    const newPreferences = { ...userPreferences, ...preferences };
-    setUserPreferences(newPreferences);
-    savePreferences(newPreferences);
-  };
+  const updatePreferences = useCallback((preferences: Partial<UserPreferences>) => {
+    setUserPreferences(prev => {
+      const newPreferences = { ...prev, ...preferences };
+      savePreferences(newPreferences);
+      return newPreferences;
+    });
+  }, [savePreferences]);
 
-  const updateDietaryRestrictions = (dietaryRestrictions: string[]) => {
-    const newPreferences = { ...userPreferences, dietaryRestrictions };
-    setUserPreferences(newPreferences);
-    savePreferences(newPreferences);
-  };
+  const updateDietaryRestrictions = useCallback((dietaryRestrictions: string[]) => {
+    setUserPreferences(prev => {
+      const newPreferences = { ...prev, dietaryRestrictions };
+      savePreferences(newPreferences);
+      return newPreferences;
+    });
+  }, [savePreferences]);
 
-  const updateHealthGoals = (healthGoals: string[]) => {
-    const newPreferences = { ...userPreferences, healthGoals };
-    setUserPreferences(newPreferences);
-    savePreferences(newPreferences);
-  };
+  const updateHealthGoals = useCallback((healthGoals: string[]) => {
+    setUserPreferences(prev => {
+      const newPreferences = { ...prev, healthGoals };
+      savePreferences(newPreferences);
+      return newPreferences;
+    });
+  }, [savePreferences]);
 
-  const updateAllergies = (allergies: string[]) => {
-    const newPreferences = { ...userPreferences, allergies };
-    setUserPreferences(newPreferences);
-    savePreferences(newPreferences);
-  };
+  const updateAllergies = useCallback((allergies: string[]) => {
+    setUserPreferences(prev => {
+      const newPreferences = { ...prev, allergies };
+      savePreferences(newPreferences);
+      return newPreferences;
+    });
+  }, [savePreferences]);
 
-  const updateCalorieGoal = (dailyCalorieGoal: number) => {
-    const newPreferences = { ...userPreferences, dailyCalorieGoal };
-    setUserPreferences(newPreferences);
-    savePreferences(newPreferences);
-  };
+  const updateCalorieGoal = useCallback((dailyCalorieGoal: number) => {
+    setUserPreferences(prev => {
+      const newPreferences = { ...prev, dailyCalorieGoal };
+      savePreferences(newPreferences);
+      return newPreferences;
+    });
+  }, [savePreferences]);
 
-  const updateMacroTargets = (macros: Partial<UserPreferences['macroTargets']>) => {
-    const newPreferences = {
-      ...userPreferences,
-      macroTargets: { ...userPreferences.macroTargets, ...macros }
-    };
-    setUserPreferences(newPreferences);
-    savePreferences(newPreferences);
-  };
+  const updateMacroTargets = useCallback((macros: Partial<UserPreferences['macroTargets']>) => {
+    setUserPreferences(prev => {
+      const newPreferences = {
+        ...prev,
+        macroTargets: { ...prev.macroTargets, ...macros }
+      };
+      savePreferences(newPreferences);
+      return newPreferences;
+    });
+  }, [savePreferences]);
 
-  const resetPreferences = () => {
+  const resetPreferences = useCallback(() => {
     setUserPreferences(defaultUserPreferences);
     savePreferences(defaultUserPreferences);
-  };
+  }, [savePreferences]);
 
   return (
     <UserPreferencesContext.Provider
