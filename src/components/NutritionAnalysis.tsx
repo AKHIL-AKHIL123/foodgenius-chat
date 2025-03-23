@@ -68,14 +68,10 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
     return <NutritionAnalysisEmpty calorieGoal={userPreferences.dailyCalorieGoal} />;
   }
   
-  const averages: {
-    protein: number;
-    carbs: number;
-    fat: number;
-  } = {
-    protein: data?.data?.averages?.protein || 0,
-    carbs: data?.data?.averages?.carbs || 0,
-    fat: data?.data?.averages?.fat || 0
+  const averages = {
+    protein: Number(data?.data?.averages?.protein || 0),
+    carbs: Number(data?.data?.averages?.carbs || 0),
+    fat: Number(data?.data?.averages?.fat || 0)
   };
   
   const macroData = [
