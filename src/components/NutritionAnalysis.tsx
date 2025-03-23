@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNutrition } from '@/hooks/useNutrition';
@@ -69,8 +68,11 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
     return <NutritionAnalysisEmpty calorieGoal={userPreferences.dailyCalorieGoal} />;
   }
   
-  // Create a properly typed averages object with guaranteed non-optional properties
-  const averages = {
+  const averages: {
+    protein: number;
+    carbs: number;
+    fat: number;
+  } = {
     protein: data?.data?.averages?.protein || 0,
     carbs: data?.data?.averages?.carbs || 0,
     fat: data?.data?.averages?.fat || 0
