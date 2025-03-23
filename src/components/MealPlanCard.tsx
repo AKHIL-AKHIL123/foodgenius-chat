@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MealPlan } from '@/utils/sampleData';
 import { Badge } from '@/components/ui/badge';
-import { Utensils, Clock, Calendar } from 'lucide-react';
+import { Utensils, Clock, Calendar, Check } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface MealPlanCardProps {
   mealPlan: MealPlan;
@@ -13,6 +14,26 @@ interface MealPlanCardProps {
 }
 
 const MealPlanCard: React.FC<MealPlanCardProps> = ({ mealPlan, className }) => {
+  const [isAdded, setIsAdded] = useState(false);
+  const [isScheduled, setIsScheduled] = useState(false);
+  const { toast } = useToast();
+
+  const handleAddToPlanner = () => {
+    setIsScheduled(true);
+    toast({
+      title: "Added to Planner",
+      description: `${mealPlan.name} has been added to your meal planner.`
+    });
+  };
+
+  const handleUseToday = () => {
+    setIsAdded(true);
+    toast({
+      title: "Added to Today",
+      description: `${mealPlan.name} has been added to your meals for today.`
+    });
+  };
+
   return (
     <Card className={cn("overflow-hidden", className)}>
       <CardHeader className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 pb-3">
@@ -72,13 +93,32 @@ const MealPlanCard: React.FC<MealPlanCardProps> = ({ mealPlan, className }) => {
       </CardContent>
       
       <CardFooter className="flex justify-between bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-3">
-        <Button variant="outline" size="sm" className="h-8 gap-1">
-          <Calendar size={14} />
-          <span>Add to Planner</span>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="h-8 gap-1"
+          onClick={handleAddToPlanner}
+          disabled={isScheduled}
+        >
+          {isScheduled ? (
+            <Check size={14} className="text-green-500" />
+          ) : (
+            <Calendar size={14} />
+          )}
+          <span>{isScheduled ? 'Added to Planner' : 'Add to Planner'}</span>
         </Button>
-        <Button size="sm" className="h-8 gap-1">
-          <Clock size={14} />
-          <span>Use Today</span>
+        <Button 
+          size="sm" 
+          className="h-8 gap-1"
+          onClick={handleUseToday}
+          disabled={isAdded}
+        >
+          {isAdded ? (
+            <Check size={14} />
+          ) : (
+            <Clock size={14} />
+          )}
+          <span>{isAdded ? 'Added to Today' : 'Use Today'}</span>
         </Button>
       </CardFooter>
     </Card>

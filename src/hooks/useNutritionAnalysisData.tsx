@@ -99,7 +99,7 @@ export const useNutritionAnalysisData = (days: number = 7) => {
     averages,
     macroData,
     calorieGoal: userPreferences.dailyCalorieGoal,
-    averageCalories: data?.data?.averages?.calories || 0,
+    averageCalories: Number(data?.data?.averages?.calories || 0),
     recommendations: data?.data?.recommendations,
     macroTargets: userPreferences.macroTargets
   };

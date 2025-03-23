@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -8,12 +8,13 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Loader2, CalendarIcon, Plus } from 'lucide-react';
-import { format } from 'date-fns';
+import { Loader2, CalendarIcon, Plus, AlertCircle } from 'lucide-react';
+import { format, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { FoodItem, MealPlan } from '@/types/nutrition';
 import { useNutrition } from '@/hooks/useNutrition';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface AddToMealPlanModalProps {
   food: FoodItem;
@@ -23,16 +24,24 @@ interface AddToMealPlanModalProps {
 
 const AddToMealPlanModal: React.FC<AddToMealPlanModalProps> = ({ food, isOpen, onClose }) => {
   const [tab, setTab] = useState<string>('existing');
-  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [mealType, setMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('breakfast');
   const [selectedPlan, setSelectedPlan] = useState<string>('');
   const [newPlanName, setNewPlanName] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   
   const { useMealPlans, useSaveMealPlan } = useNutrition();
-  const { data: mealPlansData } = useMealPlans();
+  const { data: mealPlansData, isLoading: plansLoading } = useMealPlans();
   const { mutate: saveMealPlan, isPending } = useSaveMealPlan();
   const { toast } = useToast();
+  
+  // Create a default plan if no plans exist
+  useEffect(() => {
+    if (!plansLoading && (!mealPlansData?.data || mealPlansData.data.length === 0) && tab === 'existing') {
+      // Auto-switch to the "New Plan" tab if no existing plans
+      setTab('new');
+    }
+  }, [mealPlansData, plansLoading, tab]);
   
   const handleAddToMealPlan = () => {
     if (tab === 'new' && !newPlanName.trim()) {
@@ -160,27 +169,40 @@ const AddToMealPlanModal: React.FC<AddToMealPlanModalProps> = ({ food, isOpen, o
           
           <TabsContent value="existing" className="space-y-4 pt-4">
             <div className="space-y-4">
-              <div>
-                <Label htmlFor="plan">Select a meal plan</Label>
-                <Select value={selectedPlan} onValueChange={setSelectedPlan}>
-                  <SelectTrigger id="plan">
-                    <SelectValue placeholder="Choose a meal plan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mealPlansData?.data && mealPlansData.data.length > 0 ? (
-                      mealPlansData.data.map((plan) => (
-                        <SelectItem key={plan.id} value={String(plan.id)}>
-                          {plan.name}
+              {!plansLoading && (!mealPlansData?.data || mealPlansData.data.length === 0) ? (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    You don't have any meal plans yet. Create a new plan first.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <div>
+                  <Label htmlFor="plan">Select a meal plan</Label>
+                  <Select value={selectedPlan} onValueChange={setSelectedPlan}>
+                    <SelectTrigger id="plan">
+                      <SelectValue placeholder="Choose a meal plan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {plansLoading ? (
+                        <SelectItem value="loading" disabled>
+                          Loading meal plans...
                         </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="none" disabled>
-                        No meal plans available
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
+                      ) : mealPlansData?.data && mealPlansData.data.length > 0 ? (
+                        mealPlansData.data.map((plan) => (
+                          <SelectItem key={plan.id} value={String(plan.id)}>
+                            {plan.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="none" disabled>
+                          No meal plans available
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           </TabsContent>
           
@@ -217,8 +239,9 @@ const AddToMealPlanModal: React.FC<AddToMealPlanModalProps> = ({ food, isOpen, o
                 <Calendar
                   mode="single"
                   selected={selectedDate}
-                  onSelect={setSelectedDate}
+                  onSelect={(date) => setSelectedDate(date || new Date())}
                   initialFocus
+                  fromDate={addDays(new Date(), -7)}
                 />
               </PopoverContent>
             </Popover>
@@ -266,7 +289,7 @@ const AddToMealPlanModal: React.FC<AddToMealPlanModalProps> = ({ food, isOpen, o
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleAddToMealPlan} disabled={isPending}>
+          <Button onClick={handleAddToMealPlan} disabled={isPending || (tab === 'existing' && (!mealPlansData?.data || mealPlansData.data.length === 0))}>
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

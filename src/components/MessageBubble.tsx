@@ -5,6 +5,9 @@ import FoodCard from './FoodCard';
 import MealPlanCard from './MealPlanCard';
 import { Message } from '@/utils/sampleData';
 import { useTypingEffect } from '@/utils/animations';
+import { Button } from './ui/button';
+import { PlusCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface MessageBubbleProps {
   message: Message;
@@ -22,6 +25,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     message.text,
     isLast && !isUser ? 15 : 0
   );
+  const { toast } = useToast();
+
+  const handleAddMealPlanToDay = () => {
+    if (message.mealPlan) {
+      toast({
+        title: "Meal Plan Added",
+        description: `${message.mealPlan.name} has been added to your meal plan for today.`
+      });
+    }
+  };
 
   return (
     <div className={cn(
@@ -69,7 +82,20 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
         {message.mealPlan && (
           <div className="mt-3 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-            <MealPlanCard mealPlan={message.mealPlan} />
+            <div className="space-y-2">
+              <MealPlanCard mealPlan={message.mealPlan} />
+              <div className="flex justify-end">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={handleAddMealPlanToDay}
+                >
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  Add to Today's Meals
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>
