@@ -61,7 +61,7 @@ export const MacrosChart: React.FC<MacrosChartProps> = ({
           </div>
           <div className="text-xs mt-1 flex justify-between">
             <span>{Math.round(macroTargets.protein)}% of calories</span>
-            <span>{Math.round(calculatePercentage(averages.protein, macroData[0].goal))}% of goal</span>
+            <span>{Math.round(calculatePercentage(averages.protein, macroData[0]?.goal ?? 1))}% of goal</span>
           </div>
         </div>
         <div className="bg-muted/50 p-3 rounded-lg">
@@ -71,7 +71,7 @@ export const MacrosChart: React.FC<MacrosChartProps> = ({
           </div>
           <div className="text-xs mt-1 flex justify-between">
             <span>{Math.round(macroTargets.carbs)}% of calories</span>
-            <span>{Math.round(calculatePercentage(averages.carbs, macroData[1].goal))}% of goal</span>
+            <span>{Math.round(calculatePercentage(averages.carbs, macroData[1]?.goal ?? 1))}% of goal</span>
           </div>
         </div>
         <div className="bg-muted/50 p-3 rounded-lg">
@@ -81,7 +81,7 @@ export const MacrosChart: React.FC<MacrosChartProps> = ({
           </div>
           <div className="text-xs mt-1 flex justify-between">
             <span>{Math.round(macroTargets.fat)}% of calories</span>
-            <span>{Math.round(calculatePercentage(averages.fat, macroData[2].goal))}% of goal</span>
+            <span>{Math.round(calculatePercentage(averages.fat, macroData[2]?.goal ?? 1))}% of goal</span>
           </div>
         </div>
       </div>
