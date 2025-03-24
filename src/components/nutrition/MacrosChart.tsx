@@ -11,9 +11,9 @@ interface MacroData {
 interface MacrosChartProps {
   macroData: MacroData[];
   averages: {
-    protein: number;
-    carbs: number;
-    fat: number;
+    protein: number; // Explicitly required
+    carbs: number;   // Explicitly required
+    fat: number;     // Explicitly required
   };
   macroTargets: {
     protein: number;
