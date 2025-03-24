@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { UserPreferences, defaultUserPreferences } from '@/utils/sampleData';
-import { saveUserPreferences, getUserPreferences } from '@/services/nutritionService';
+import { saveUserPreferences, getUserPreferences } from '@/services/userPreferencesService';
 import { useSupabaseAuth } from './SupabaseAuthContext';
 import { useToast } from '@/hooks/use-toast';
 
