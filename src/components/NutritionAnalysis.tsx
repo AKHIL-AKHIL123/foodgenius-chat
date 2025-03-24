@@ -38,6 +38,13 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
     return <NutritionAnalysisEmpty calorieGoal={calorieGoal} />;
   }
   
+  // Ensure that averages has all required properties as non-optional
+  const ensuredAverages = {
+    protein: averages.protein,
+    carbs: averages.carbs,
+    fat: averages.fat
+  };
+  
   return (
     <Card className="overflow-hidden">
       <CardHeader>
@@ -71,7 +78,7 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
             <TabsContent value="macros" className="pt-2">
               <MacrosChart 
                 macroData={macroData}
-                averages={averages}
+                averages={ensuredAverages}
                 macroTargets={macroTargets}
               />
             </TabsContent>

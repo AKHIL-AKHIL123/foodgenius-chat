@@ -59,15 +59,15 @@ export const useNutritionAnalysisData = (days: number = 7) => {
     });
   }, [mealLogsData?.data]);
   
-  // Create properly typed averages object with non-optional properties
+  // Create properly typed averages object with required (non-optional) properties
   const averages = useMemo(() => {
-    // Extract values with defaults to ensure they are never undefined
+    // Always provide default values to ensure properties are never undefined
     const protein = Number(data?.data?.averages?.protein || 0);
     const carbs = Number(data?.data?.averages?.carbs || 0);
     const fat = Number(data?.data?.averages?.fat || 0);
     
-    // Return object with required properties
-    return { 
+    // Return object with explicitly required properties
+    return {
       protein, 
       carbs, 
       fat 
