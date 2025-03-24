@@ -61,12 +61,12 @@ export const useNutritionAnalysisData = (days: number = 7) => {
   
   // Create properly typed averages object with non-optional properties
   const averages = useMemo(() => {
-    // Fixed: Ensure all properties are non-optional by providing default values
-    return {
-      protein: Number(data?.data?.averages?.protein || 0),
-      carbs: Number(data?.data?.averages?.carbs || 0),
-      fat: Number(data?.data?.averages?.fat || 0)
-    };
+    // Explicitly create an object with non-optional properties by providing default values
+    const protein = Number(data?.data?.averages?.protein || 0);
+    const carbs = Number(data?.data?.averages?.carbs || 0);
+    const fat = Number(data?.data?.averages?.fat || 0);
+    
+    return { protein, carbs, fat };
   }, [data?.data?.averages]);
   
   // Create macro data for the charts
