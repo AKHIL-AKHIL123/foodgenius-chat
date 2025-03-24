@@ -2,8 +2,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { useToast } from '@/hooks/use-toast';
-import * as nutritionService from '@/services/nutritionService';
 import { FoodItem, MealLog, MealPlan } from '@/types/nutrition';
+import * as nutritionService from '@/services/index';
 
 export const useNutrition = () => {
   const { user } = useSupabaseAuth();
