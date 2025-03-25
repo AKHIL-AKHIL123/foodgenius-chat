@@ -1,36 +1,44 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { ThemeProvider } from "@/components/theme-provider"
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from "@/components/ui/toaster"
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import MealTracker from "./pages/MealTracker";
-import { UserPreferencesProvider } from "./contexts/UserPreferencesContext";
-import { SupabaseAuthProvider } from "./contexts/SupabaseAuthContext";
+import Index from './pages/Index';
+import MealTracker from './pages/MealTracker';
+import NotFound from './pages/NotFound';
+import Header from './components/Header';
+import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
+import { UserPreferencesProvider } from './contexts/UserPreferencesContext';
+import UserPreferences from './pages/UserPreferences';
 
-const queryClient = new QueryClient();
+function App() {
+  const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+  return (
+    <BrowserRouter>
       <SupabaseAuthProvider>
         <UserPreferencesProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/meal-tracker" element={<MealTracker />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <div className="min-h-screen bg-background">
+                <Header />
+                <main className="container mx-auto py-6">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/meal-tracker" element={<MealTracker />} />
+                    <Route path="/preferences" element={<UserPreferences />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+                <Toaster />
+              </div>
+            </ThemeProvider>
+          </QueryClientProvider>
         </UserPreferencesProvider>
       </SupabaseAuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </BrowserRouter>
+  );
+}
 
 export default App;
