@@ -3,9 +3,11 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DietaryPreferencesForm from '@/components/preferences/DietaryPreferencesForm';
 import FoodAllergiesForm from '@/components/preferences/FoodAllergiesForm';
+import NutritionGoalsForm from '@/components/preferences/NutritionGoalsForm';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from '@/components/ui/skeleton';
+import { Utensils, AlertTriangle, Target } from 'lucide-react';
 
 const UserPreferences: React.FC = () => {
   const { loading } = useUserPreferences();
@@ -39,9 +41,22 @@ const UserPreferences: React.FC = () => {
       <h1 className="text-2xl font-bold">User Preferences</h1>
       
       <Tabs defaultValue="dietary" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="dietary">Dietary Preferences</TabsTrigger>
-          <TabsTrigger value="allergies">Food Allergies</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsTrigger value="dietary" className="flex items-center gap-2">
+            <Utensils className="h-4 w-4" />
+            <span className="hidden sm:inline">Dietary Preferences</span>
+            <span className="sm:hidden">Diet</span>
+          </TabsTrigger>
+          <TabsTrigger value="allergies" className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4" />
+            <span className="hidden sm:inline">Food Allergies</span>
+            <span className="sm:hidden">Allergies</span>
+          </TabsTrigger>
+          <TabsTrigger value="goals" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            <span className="hidden sm:inline">Nutrition Goals</span>
+            <span className="sm:hidden">Goals</span>
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="dietary" className="space-y-6">
@@ -50,6 +65,10 @@ const UserPreferences: React.FC = () => {
         
         <TabsContent value="allergies" className="space-y-6">
           <FoodAllergiesForm />
+        </TabsContent>
+
+        <TabsContent value="goals" className="space-y-6">
+          <NutritionGoalsForm />
         </TabsContent>
       </Tabs>
     </div>
