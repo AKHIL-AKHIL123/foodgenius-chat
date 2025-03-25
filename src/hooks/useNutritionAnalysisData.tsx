@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { format, subDays, isSameDay } from 'date-fns';
 import { useNutrition } from './useNutrition';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
+import { MacroNutrients, ensureCompleteMacros } from '@/types/nutrition.d';
 
 export const useNutritionAnalysisData = (days: number = 7) => {
   const { useNutritionAnalysis, useMealLogs } = useNutrition();
@@ -61,34 +62,32 @@ export const useNutritionAnalysisData = (days: number = 7) => {
   
   // Create properly typed averages object with required (non-optional) properties
   const averages = useMemo(() => {
-    // Always provide default values to ensure properties are never undefined
-    const protein = Number(data?.data?.averages?.protein || 0);
-    const carbs = Number(data?.data?.averages?.carbs || 0);
-    const fat = Number(data?.data?.averages?.fat || 0);
-    
-    // Return object with explicitly required properties
-    return {
-      protein, 
-      carbs, 
-      fat 
+    // Extract values from data with fallback to 0
+    const rawAverages = {
+      protein: Number(data?.data?.averages?.protein ?? 0),
+      carbs: Number(data?.data?.averages?.carbs ?? 0),
+      fat: Number(data?.data?.averages?.fat ?? 0)
     };
+    
+    // Ensure we have a fully compliant MacroNutrients object with no optional properties
+    return ensureCompleteMacros(rawAverages);
   }, [data?.data?.averages]);
   
   // Create macro data for the charts
   const macroData = useMemo(() => [
     { 
       name: 'Protein', 
-      value: averages.protein || 0, 
+      value: averages.protein, 
       goal: ((userPreferences.macroTargets.protein || 0) / 100) * (userPreferences.dailyCalorieGoal || 2000) / 4 
     },
     { 
       name: 'Carbs', 
-      value: averages.carbs || 0, 
+      value: averages.carbs, 
       goal: ((userPreferences.macroTargets.carbs || 0) / 100) * (userPreferences.dailyCalorieGoal || 2000) / 4 
     },
     { 
       name: 'Fat', 
-      value: averages.fat || 0, 
+      value: averages.fat, 
       goal: ((userPreferences.macroTargets.fat || 0) / 100) * (userPreferences.dailyCalorieGoal || 2000) / 9 
     }
   ], [averages, userPreferences.macroTargets, userPreferences.dailyCalorieGoal]);

@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { MacroNutrients } from '@/types/nutrition.d';
 
 interface MacroData {
   name: string;
@@ -10,11 +11,7 @@ interface MacroData {
 
 interface MacrosChartProps {
   macroData: MacroData[];
-  averages: {
-    protein: number; // Required
-    carbs: number;   // Required
-    fat: number;     // Required
-  };
+  averages: MacroNutrients;
   macroTargets: {
     protein: number;
     carbs: number;
@@ -63,7 +60,7 @@ export const MacrosChart: React.FC<MacrosChartProps> = ({
             <span>{Math.round(macroTargets.protein)}% of calories</span>
             <span>
               {Math.round(
-                calculatePercentage(averages.protein, macroData[0]?.goal ?? 1) // Ensure goal is always a number
+                calculatePercentage(averages.protein, macroData[0]?.goal || 1)
               )}% of goal
             </span>
           </div>
@@ -77,7 +74,7 @@ export const MacrosChart: React.FC<MacrosChartProps> = ({
             <span>{Math.round(macroTargets.carbs)}% of calories</span>
             <span>
               {Math.round(
-                calculatePercentage(averages.carbs, macroData[1]?.goal ?? 1) // Ensure goal is always a number
+                calculatePercentage(averages.carbs, macroData[1]?.goal || 1)
               )}% of goal
             </span>
           </div>
@@ -91,7 +88,7 @@ export const MacrosChart: React.FC<MacrosChartProps> = ({
             <span>{Math.round(macroTargets.fat)}% of calories</span>
             <span>
               {Math.round(
-                calculatePercentage(averages.fat, macroData[2]?.goal ?? 1) // Ensure goal is always a number
+                calculatePercentage(averages.fat, macroData[2]?.goal || 1)
               )}% of goal
             </span>
           </div>
