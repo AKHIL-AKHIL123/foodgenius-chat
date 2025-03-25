@@ -10,8 +10,9 @@ const Header: React.FC = () => {
   const { toast } = useToast();
 
   const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (error) {
+    try {
+      await signOut();
+    } catch (error) {
       toast({
         title: "Error signing out",
         description: "Something went wrong. Please try again.",
