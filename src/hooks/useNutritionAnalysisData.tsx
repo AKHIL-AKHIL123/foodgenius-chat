@@ -78,18 +78,18 @@ export const useNutritionAnalysisData = (days: number = 7) => {
   const macroData = useMemo(() => [
     { 
       name: 'Protein', 
-      value: averages.protein, 
-      goal: (userPreferences.macroTargets.protein / 100) * userPreferences.dailyCalorieGoal / 4 
+      value: averages.protein || 0, 
+      goal: ((userPreferences.macroTargets.protein || 0) / 100) * (userPreferences.dailyCalorieGoal || 2000) / 4 
     },
     { 
       name: 'Carbs', 
-      value: averages.carbs, 
-      goal: (userPreferences.macroTargets.carbs / 100) * userPreferences.dailyCalorieGoal / 4 
+      value: averages.carbs || 0, 
+      goal: ((userPreferences.macroTargets.carbs || 0) / 100) * (userPreferences.dailyCalorieGoal || 2000) / 4 
     },
     { 
       name: 'Fat', 
-      value: averages.fat, 
-      goal: (userPreferences.macroTargets.fat / 100) * userPreferences.dailyCalorieGoal / 9 
+      value: averages.fat || 0, 
+      goal: ((userPreferences.macroTargets.fat || 0) / 100) * (userPreferences.dailyCalorieGoal || 2000) / 9 
     }
   ], [averages, userPreferences.macroTargets, userPreferences.dailyCalorieGoal]);
   
