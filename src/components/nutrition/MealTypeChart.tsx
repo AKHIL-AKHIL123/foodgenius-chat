@@ -12,7 +12,15 @@ interface MealTypeChartProps {
   mealTypeData: MealTypeData[];
 }
 
-export const MealTypeChart: React.FC<MealTypeChartProps> = ({ mealTypeData }) => {
+export const MealTypeChart: React.FC<MealTypeChartProps> = ({ mealTypeData = [] }) => {
+  if (mealTypeData.length === 0 || mealTypeData.every(meal => meal.count === 0)) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        No meal data available. Start tracking your meals by type to see this analysis.
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="h-[300px]">

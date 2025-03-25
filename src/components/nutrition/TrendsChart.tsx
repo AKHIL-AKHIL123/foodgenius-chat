@@ -19,19 +19,27 @@ interface TrendsChartProps {
 }
 
 export const TrendsChart: React.FC<TrendsChartProps> = ({ 
-  dailyData, 
+  dailyData = [], 
   recommendations = [] 
 }) => {
   // Assuming we want to show a trend of macronutrient ratios over time
   const ratioData = dailyData.map(day => {
-    const totalGrams = day.protein + day.carbs + day.fat;
+    const totalGrams = (day.protein || 0) + (day.carbs || 0) + (day.fat || 0);
     return {
       date: day.date,
-      proteinRatio: totalGrams ? (day.protein / totalGrams) * 100 : 0,
-      carbsRatio: totalGrams ? (day.carbs / totalGrams) * 100 : 0,
-      fatRatio: totalGrams ? (day.fat / totalGrams) * 100 : 0,
+      proteinRatio: totalGrams ? ((day.protein || 0) / totalGrams) * 100 : 0,
+      carbsRatio: totalGrams ? ((day.carbs || 0) / totalGrams) * 100 : 0,
+      fatRatio: totalGrams ? ((day.fat || 0) / totalGrams) * 100 : 0,
     };
   });
+
+  if (ratioData.length === 0) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        Not enough data to display trends. Log your meals to see macronutrient trends over time.
+      </div>
+    );
+  }
 
   return (
     <>

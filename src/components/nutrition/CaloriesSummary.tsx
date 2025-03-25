@@ -9,8 +9,8 @@ interface CaloriesSummaryProps {
 }
 
 export const CaloriesSummary: React.FC<CaloriesSummaryProps> = ({ 
-  averageCalories, 
-  calorieGoal 
+  averageCalories = 0, 
+  calorieGoal = 2000
 }) => {
   const calculatePercentage = (value: number, goal: number) => {
     if (goal <= 0) return 0;
@@ -45,6 +45,7 @@ export const CaloriesSummary: React.FC<CaloriesSummaryProps> = ({
   };
 
   const calorieStatus = getCalorieStatus();
+  const barWidth = Math.min(100, (averageCalories / (calorieGoal || 1)) * 100);
 
   return (
     <div className="space-y-2">
@@ -65,7 +66,7 @@ export const CaloriesSummary: React.FC<CaloriesSummaryProps> = ({
         <div 
           className="absolute h-full bg-primary transition-all duration-500 ease-in-out"
           style={{ 
-            width: `${Math.min(100, (averageCalories / calorieGoal) * 100)}%`,
+            width: `${barWidth}%`,
             backgroundColor: getBarColor(averageCalories, calorieGoal)
           }}
         />

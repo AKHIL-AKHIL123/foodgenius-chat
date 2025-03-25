@@ -21,17 +21,38 @@ interface CaloriesChartProps {
 }
 
 export const CaloriesChart: React.FC<CaloriesChartProps> = ({ 
-  dailyData, 
-  averageCalories, 
-  calorieGoal,
-  days 
+  dailyData = [], 
+  averageCalories = 0, 
+  calorieGoal = 2000,
+  days = 7
 }) => {
+  if (dailyData.length === 0) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        No calorie data available. Start tracking your meals to see your calorie trends.
+      </div>
+    );
+  }
+
+  // Ensure all days have data for the chart
+  const safeData = dailyData.map(day => ({
+    ...day,
+    calories: day.calories || 0,
+    goal: day.goal || calorieGoal
+  }));
+
+  const highestDay = Math.max(...safeData.map(day => day.calories || 0));
+  const daysOnTrack = safeData.filter(day => 
+    day.calories >= calorieGoal * 0.8 && 
+    day.calories <= calorieGoal * 1.2
+  ).length;
+
   return (
     <>
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
-            data={dailyData}
+            data={safeData}
             margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
@@ -78,16 +99,13 @@ export const CaloriesChart: React.FC<CaloriesChartProps> = ({
         <div className="bg-muted/50 p-3 rounded-lg">
           <div className="text-xs text-muted-foreground">Highest Day</div>
           <div className="text-lg font-semibold">
-            {Math.max(...dailyData.map(day => day.calories || 0))} cal
+            {highestDay} cal
           </div>
         </div>
         <div className="bg-muted/50 p-3 rounded-lg">
           <div className="text-xs text-muted-foreground">Days on Track</div>
           <div className="text-lg font-semibold">
-            {dailyData.filter(day => 
-              day.calories >= calorieGoal * 0.8 && 
-              day.calories <= calorieGoal * 1.2
-            ).length}/{days}
+            {daysOnTrack}/{days}
           </div>
         </div>
       </div>

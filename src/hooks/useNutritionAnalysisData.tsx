@@ -26,10 +26,10 @@ export const useNutritionAnalysisData = (days: number = 7) => {
         isSameDay(new Date(meal.date), date)
       ) || [];
       
-      const totalCalories = dayMeals.reduce((sum, meal) => sum + meal.totalCalories, 0);
-      const totalProtein = dayMeals.reduce((sum, meal) => sum + meal.totalProtein, 0);
-      const totalCarbs = dayMeals.reduce((sum, meal) => sum + meal.totalCarbs, 0);
-      const totalFat = dayMeals.reduce((sum, meal) => sum + meal.totalFat, 0);
+      const totalCalories = dayMeals.reduce((sum, meal) => sum + (meal.totalCalories || 0), 0);
+      const totalProtein = dayMeals.reduce((sum, meal) => sum + (meal.totalProtein || 0), 0);
+      const totalCarbs = dayMeals.reduce((sum, meal) => sum + (meal.totalCarbs || 0), 0);
+      const totalFat = dayMeals.reduce((sum, meal) => sum + (meal.totalFat || 0), 0);
       
       return {
         date: format(date, 'MMM dd'),
@@ -38,10 +38,10 @@ export const useNutritionAnalysisData = (days: number = 7) => {
         protein: totalProtein,
         carbs: totalCarbs,
         fat: totalFat,
-        goal: userPreferences.dailyCalorieGoal
+        goal: userPreferences?.dailyCalorieGoal || 2000
       };
     });
-  }, [mealLogsData?.data, days, userPreferences.dailyCalorieGoal]);
+  }, [mealLogsData?.data, days, userPreferences?.dailyCalorieGoal]);
   
   // Process meal type data
   const mealTypeData = useMemo(() => {
@@ -49,7 +49,7 @@ export const useNutritionAnalysisData = (days: number = 7) => {
     
     return ['breakfast', 'lunch', 'dinner', 'snack'].map(mealType => {
       const mealsOfType = mealLogsData.data.filter(meal => meal.mealType === mealType) || [];
-      const totalCalories = mealsOfType.reduce((sum, meal) => sum + meal.totalCalories, 0);
+      const totalCalories = mealsOfType.reduce((sum, meal) => sum + (meal.totalCalories || 0), 0);
       const avgCalories = mealsOfType.length ? Math.round(totalCalories / mealsOfType.length) : 0;
       
       return {
@@ -78,19 +78,19 @@ export const useNutritionAnalysisData = (days: number = 7) => {
     { 
       name: 'Protein', 
       value: averages.protein, 
-      goal: ((userPreferences.macroTargets.protein || 0) / 100) * (userPreferences.dailyCalorieGoal || 2000) / 4 
+      goal: ((userPreferences?.macroTargets?.protein || 0) / 100) * (userPreferences?.dailyCalorieGoal || 2000) / 4 
     },
     { 
       name: 'Carbs', 
       value: averages.carbs, 
-      goal: ((userPreferences.macroTargets.carbs || 0) / 100) * (userPreferences.dailyCalorieGoal || 2000) / 4 
+      goal: ((userPreferences?.macroTargets?.carbs || 0) / 100) * (userPreferences?.dailyCalorieGoal || 2000) / 4 
     },
     { 
       name: 'Fat', 
       value: averages.fat, 
-      goal: ((userPreferences.macroTargets.fat || 0) / 100) * (userPreferences.dailyCalorieGoal || 2000) / 9 
+      goal: ((userPreferences?.macroTargets?.fat || 0) / 100) * (userPreferences?.dailyCalorieGoal || 2000) / 9 
     }
-  ], [averages, userPreferences.macroTargets, userPreferences.dailyCalorieGoal]);
+  ], [averages, userPreferences?.macroTargets, userPreferences?.dailyCalorieGoal]);
   
   // Check if there's data to display
   const hasData = (data?.data?.averages && data.data.averages.calories > 0) || 
@@ -103,9 +103,9 @@ export const useNutritionAnalysisData = (days: number = 7) => {
     mealTypeData,
     averages,
     macroData,
-    calorieGoal: userPreferences.dailyCalorieGoal,
+    calorieGoal: userPreferences?.dailyCalorieGoal || 2000,
     averageCalories: Number(data?.data?.averages?.calories || 0),
-    recommendations: data?.data?.recommendations,
-    macroTargets: userPreferences.macroTargets
+    recommendations: data?.data?.recommendations || [],
+    macroTargets: userPreferences?.macroTargets || { protein: 25, carbs: 50, fat: 25 }
   };
 };

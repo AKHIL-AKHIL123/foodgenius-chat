@@ -20,14 +20,22 @@ interface MacrosChartProps {
 }
 
 export const MacrosChart: React.FC<MacrosChartProps> = ({ 
-  macroData, 
+  macroData = [], 
   averages, 
-  macroTargets
+  macroTargets = { protein: 0, carbs: 0, fat: 0 }
 }) => {
   const calculatePercentage = (value: number, goal: number) => {
     if (goal <= 0) return 0;
     return (value / goal) * 100;
   };
+
+  if (macroData.length === 0) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        No macro data available. Start tracking your meals to see macronutrient analysis.
+      </div>
+    );
+  }
 
   return (
     <>
@@ -42,7 +50,8 @@ export const MacrosChart: React.FC<MacrosChartProps> = ({
             <YAxis unit="g" />
             <Tooltip 
               formatter={(value: number, name: string, props: any) => {
-                return [`${Math.round(value)}g (${Math.round(calculatePercentage(value, props.payload.goal))}% of goal)`, name];
+                const goal = props?.payload?.goal || 0;
+                return [`${Math.round(value)}g (${Math.round(calculatePercentage(value, goal))}% of goal)`, name];
               }}
             />
             <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
@@ -57,7 +66,7 @@ export const MacrosChart: React.FC<MacrosChartProps> = ({
             {Math.round(averages.protein)}g
           </div>
           <div className="text-xs mt-1 flex justify-between">
-            <span>{Math.round(macroTargets.protein)}% of calories</span>
+            <span>{Math.round(macroTargets.protein || 0)}% of calories</span>
             <span>
               {Math.round(
                 calculatePercentage(averages.protein, macroData[0]?.goal || 1)
@@ -71,7 +80,7 @@ export const MacrosChart: React.FC<MacrosChartProps> = ({
             {Math.round(averages.carbs)}g
           </div>
           <div className="text-xs mt-1 flex justify-between">
-            <span>{Math.round(macroTargets.carbs)}% of calories</span>
+            <span>{Math.round(macroTargets.carbs || 0)}% of calories</span>
             <span>
               {Math.round(
                 calculatePercentage(averages.carbs, macroData[1]?.goal || 1)
@@ -85,7 +94,7 @@ export const MacrosChart: React.FC<MacrosChartProps> = ({
             {Math.round(averages.fat)}g
           </div>
           <div className="text-xs mt-1 flex justify-between">
-            <span>{Math.round(macroTargets.fat)}% of calories</span>
+            <span>{Math.round(macroTargets.fat || 0)}% of calories</span>
             <span>
               {Math.round(
                 calculatePercentage(averages.fat, macroData[2]?.goal || 1)
