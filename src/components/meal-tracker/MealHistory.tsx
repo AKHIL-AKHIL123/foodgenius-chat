@@ -105,7 +105,7 @@ export const MealHistory: React.FC<MealHistoryProps> = ({
             </div>
             
             <div className="pl-3 space-y-2">
-              {meals.sort((a, b) => {
+              {(meals as MealLog[]).sort((a, b) => {
                 const mealOrder = { breakfast: 0, lunch: 1, dinner: 2, snack: 3 };
                 return (mealOrder as any)[a.mealType] - (mealOrder as any)[b.mealType];
               }).map((meal: MealLog) => (

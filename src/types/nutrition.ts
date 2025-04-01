@@ -9,3 +9,6 @@ export function ensureCompleteMacros(macros: Partial<MacroNutrients>): MacroNutr
     fat: macros.fat ?? 0
   };
 }
+
+// Re-export types from nutrition.d.ts to maintain backward compatibility
+export * from './nutrition.d';
