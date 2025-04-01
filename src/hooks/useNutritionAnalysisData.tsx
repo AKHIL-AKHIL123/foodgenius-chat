@@ -58,13 +58,13 @@ export const useNutritionAnalysisData = (days: number = 7) => {
     });
   }, [mealLogsData?.data]);
   
-  // This is the key part that needs to be fixed - we need to ensure averages is a proper MacroNutrients object
+  // Ensure averages is a proper MacroNutrients object with required properties
   const averages: MacroNutrients = useMemo(() => {
-    return {
+    return ensureCompleteMacros({
       protein: Number(data?.data?.averages?.protein ?? 0),
       carbs: Number(data?.data?.averages?.carbs ?? 0),
       fat: Number(data?.data?.averages?.fat ?? 0)
-    };
+    });
   }, [data?.data?.averages]);
   
   const macroData = useMemo(() => [
