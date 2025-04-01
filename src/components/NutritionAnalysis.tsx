@@ -10,6 +10,7 @@ import { MacrosChart } from './nutrition/MacrosChart';
 import { MealTypeChart } from './nutrition/MealTypeChart';
 import { TrendsChart } from './nutrition/TrendsChart';
 import { useNutritionAnalysisData } from '@/hooks/useNutritionAnalysisData';
+import { ensureCompleteMacros } from '@/types/nutrition';
 
 interface NutritionAnalysisProps {
   days?: number;
@@ -37,6 +38,9 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
   if (!hasData) {
     return <NutritionAnalysisEmpty calorieGoal={calorieGoal} />;
   }
+  
+  // Ensure we have non-optional macro values
+  const macroAverages = ensureCompleteMacros(averages);
   
   return (
     <Card className="overflow-hidden">
@@ -71,11 +75,7 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
             <TabsContent value="macros" className="pt-2">
               <MacrosChart 
                 macroData={macroData}
-                averages={{
-                  protein: averages.protein || 0,
-                  carbs: averages.carbs || 0,
-                  fat: averages.fat || 0
-                }}
+                averages={macroAverages}
                 macroTargets={macroTargets}
               />
             </TabsContent>

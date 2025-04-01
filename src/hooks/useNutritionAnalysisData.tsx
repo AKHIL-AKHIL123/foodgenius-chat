@@ -96,6 +96,8 @@ export const useNutritionAnalysisData = (days: number = 7) => {
   const hasData = (data?.data?.averages && data.data.averages.calories > 0) || 
                   (mealLogsData?.data && mealLogsData.data.length > 0);
   
+  const calorieGoal = userPreferences?.dailyCalorieGoal || 2000;
+  
   return {
     isLoading: isLoading || logsLoading,
     hasData,
@@ -103,7 +105,7 @@ export const useNutritionAnalysisData = (days: number = 7) => {
     mealTypeData,
     averages,
     macroData,
-    calorieGoal: userPreferences?.dailyCalorieGoal || 2000,
+    calorieGoal,
     averageCalories: Number(data?.data?.averages?.calories || 0),
     recommendations: data?.data?.recommendations || [],
     macroTargets: userPreferences?.macroTargets || { protein: 25, carbs: 50, fat: 25 }

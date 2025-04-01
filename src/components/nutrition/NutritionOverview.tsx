@@ -11,6 +11,7 @@ import { NutritionAnalysisLoading } from './NutritionAnalysisLoading';
 import { NutritionAnalysisEmpty } from './NutritionAnalysisEmpty';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 import { Lightbulb, BarChart, PieChart, Calendar } from 'lucide-react';
+import { ensureCompleteMacros } from '@/types/nutrition';
 
 interface NutritionOverviewProps {
   days?: number;
@@ -21,13 +22,16 @@ const NutritionOverview: React.FC<NutritionOverviewProps> = ({
   days = 7,
   showRecommendations = true
 }) => {
-  const { isLoading, hasData, dailyData, mealTypeData, averages, macroData, averageCalories, recommendations } = 
+  const { isLoading, hasData, dailyData, mealTypeData, averages, macroData, averageCalories, recommendations, calorieGoal } = 
     useNutritionAnalysisData(days);
     
   const { userPreferences } = useUserPreferences();
   
   if (isLoading) return <NutritionAnalysisLoading />;
-  if (!hasData) return <NutritionAnalysisEmpty />;
+  if (!hasData) return <NutritionAnalysisEmpty calorieGoal={calorieGoal} />;
+  
+  // Ensure we have non-optional macro values
+  const macroAverages = ensureCompleteMacros(averages);
   
   return (
     <div className="space-y-6">
@@ -48,11 +52,7 @@ const NutritionOverview: React.FC<NutritionOverviewProps> = ({
           <CardContent>
             <MacrosChart 
               macroData={macroData}
-              averages={{
-                protein: averages.protein || 0,
-                carbs: averages.carbs || 0,
-                fat: averages.fat || 0
-              }}
+              averages={macroAverages}
               macroTargets={userPreferences?.macroTargets || { protein: 25, carbs: 50, fat: 25 }}
             />
           </CardContent>
