@@ -1,3 +1,4 @@
+
 import { useMemo } from 'react';
 import { format, subDays, isSameDay } from 'date-fns';
 import { useNutrition } from './useNutrition';
@@ -58,13 +59,12 @@ export const useNutritionAnalysisData = (days: number = 7) => {
   }, [mealLogsData?.data]);
   
   const averages = useMemo(() => {
-    const rawAverages = {
+    // Ensure we get complete MacroNutrients object with non-optional properties
+    return ensureCompleteMacros({
       protein: Number(data?.data?.averages?.protein ?? 0),
       carbs: Number(data?.data?.averages?.carbs ?? 0),
       fat: Number(data?.data?.averages?.fat ?? 0)
-    };
-    
-    return ensureCompleteMacros(rawAverages);
+    });
   }, [data?.data?.averages]);
   
   const macroData = useMemo(() => [

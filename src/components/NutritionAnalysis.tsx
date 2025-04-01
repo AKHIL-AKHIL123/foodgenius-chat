@@ -10,7 +10,6 @@ import { MacrosChart } from './nutrition/MacrosChart';
 import { MealTypeChart } from './nutrition/MealTypeChart';
 import { TrendsChart } from './nutrition/TrendsChart';
 import { useNutritionAnalysisData } from '@/hooks/useNutritionAnalysisData';
-import { ensureCompleteMacros } from '@/types/nutrition';
 
 interface NutritionAnalysisProps {
   days?: number;
@@ -39,8 +38,7 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
     return <NutritionAnalysisEmpty calorieGoal={calorieGoal} />;
   }
   
-  // Ensure we have non-optional macro values
-  const macroAverages = ensureCompleteMacros(averages);
+  // No need to call ensureCompleteMacros here as it's already done in the hook
   
   return (
     <Card className="overflow-hidden">
@@ -75,7 +73,7 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
             <TabsContent value="macros" className="pt-2">
               <MacrosChart 
                 macroData={macroData}
-                averages={macroAverages}
+                averages={averages} // This is already complete from the hook
                 macroTargets={macroTargets}
               />
             </TabsContent>
