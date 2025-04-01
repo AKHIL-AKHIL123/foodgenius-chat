@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { FoodItem } from '@/types/nutrition';
 import { Json } from '@/types/supabase';
 
-export const searchFoodItems = async (query: string): Promise<FoodItem[]> => {
+export const searchFoodItems = async (query: string): Promise<{ data: FoodItem[] }> => {
   try {
     // Use ilike for case-insensitive search
     const { data, error } = await supabase
@@ -14,7 +14,7 @@ export const searchFoodItems = async (query: string): Promise<FoodItem[]> => {
     
     if (error) throw error;
     
-    return data.map(item => ({
+    const mappedData = data.map(item => ({
       id: item.id,
       name: item.food_name,
       category: (item.nutrition_info as any).category || 'general',
@@ -28,9 +28,11 @@ export const searchFoodItems = async (query: string): Promise<FoodItem[]> => {
         servingSize: (item.nutrition_info as any).serving_size || '100g'
       }
     }));
+    
+    return { data: mappedData };
   } catch (error) {
     console.error('Error searching food items:', error);
-    return [];
+    return { data: [] };
   }
 };
 

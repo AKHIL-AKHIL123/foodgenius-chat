@@ -7,8 +7,8 @@ import { CaloriesChart } from './CaloriesChart';
 import { MacrosChart } from './MacrosChart';
 import { MealTypeChart } from './MealTypeChart';
 import { useNutritionAnalysisData } from '@/hooks/useNutritionAnalysisData';
-import NutritionAnalysisLoading from './NutritionAnalysisLoading';
-import NutritionAnalysisEmpty from './NutritionAnalysisEmpty';
+import { NutritionAnalysisLoading } from './NutritionAnalysisLoading';
+import { NutritionAnalysisEmpty } from './NutritionAnalysisEmpty';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 import { Lightbulb, BarChart, PieChart, Calendar } from 'lucide-react';
 
@@ -34,7 +34,7 @@ const NutritionOverview: React.FC<NutritionOverviewProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CaloriesSummary 
           averageCalories={averageCalories} 
-          targetCalories={userPreferences?.dailyCalorieGoal || 2000} 
+          calorieGoal={userPreferences?.dailyCalorieGoal || 2000} 
         />
         
         <Card>
@@ -46,7 +46,15 @@ const NutritionOverview: React.FC<NutritionOverviewProps> = ({
             <CardDescription>Average daily macros compared to targets</CardDescription>
           </CardHeader>
           <CardContent>
-            <MacrosChart data={macroData} />
+            <MacrosChart 
+              macroData={macroData}
+              averages={{
+                protein: averages.protein || 0,
+                carbs: averages.carbs || 0,
+                fat: averages.fat || 0
+              }}
+              macroTargets={userPreferences?.macroTargets || { protein: 25, carbs: 50, fat: 25 }}
+            />
           </CardContent>
         </Card>
       </div>
@@ -75,7 +83,12 @@ const NutritionOverview: React.FC<NutritionOverviewProps> = ({
               <CardDescription>Your calorie intake for the past {days} days</CardDescription>
             </CardHeader>
             <CardContent>
-              <CaloriesChart data={dailyData} />
+              <CaloriesChart 
+                dailyData={dailyData}
+                averageCalories={averageCalories}
+                calorieGoal={userPreferences?.dailyCalorieGoal || 2000}
+                days={days}
+              />
             </CardContent>
           </Card>
         </TabsContent>

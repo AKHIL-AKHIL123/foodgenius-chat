@@ -71,7 +71,11 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
             <TabsContent value="macros" className="pt-2">
               <MacrosChart 
                 macroData={macroData}
-                averages={averages}
+                averages={{
+                  protein: averages.protein || 0,
+                  carbs: averages.carbs || 0,
+                  fat: averages.fat || 0
+                }}
                 macroTargets={macroTargets}
               />
             </TabsContent>
