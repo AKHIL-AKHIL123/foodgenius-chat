@@ -5,6 +5,7 @@ import { ThemeProvider } from "./components/theme-provider";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "./components/ui/toaster";
 
+import Landing from './pages/Landing';
 import Index from './pages/Index';
 import MealTracker from './pages/MealTracker';
 import NotFound from './pages/NotFound';
@@ -26,7 +27,8 @@ function App() {
                 <Header />
                 <main className="container mx-auto py-6">
                   <Routes>
-                    <Route path="/" element={<Index />} />
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/dashboard" element={<Index />} />
                     <Route path="/meal-tracker" element={<MealTracker />} />
                     <Route path="/preferences" element={<UserPreferences />} />
                     <Route path="*" element={<NotFound />} />
