@@ -1,9 +1,8 @@
-
 import { useMemo } from 'react';
 import { format, subDays, isSameDay } from 'date-fns';
 import { useNutrition } from './useNutrition';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
-import { MacroNutrients, ensureCompleteMacros } from '@/types/nutrition.d';
+import { MacroNutrients, ensureCompleteMacros } from '@/types/nutrition';
 
 export const useNutritionAnalysisData = (days: number = 7) => {
   const { useNutritionAnalysis, useMealLogs } = useNutrition();
@@ -16,7 +15,6 @@ export const useNutritionAnalysisData = (days: number = 7) => {
     isLoading: logsLoading 
   } = useMealLogs(startDate.toISOString());
   
-  // Process daily data
   const dailyData = useMemo(() => {
     if (!mealLogsData?.data) return [];
     
@@ -43,7 +41,6 @@ export const useNutritionAnalysisData = (days: number = 7) => {
     });
   }, [mealLogsData?.data, days, userPreferences?.dailyCalorieGoal]);
   
-  // Process meal type data
   const mealTypeData = useMemo(() => {
     if (!mealLogsData?.data) return [];
     
@@ -60,20 +57,16 @@ export const useNutritionAnalysisData = (days: number = 7) => {
     });
   }, [mealLogsData?.data]);
   
-  // Create properly typed averages object with required (non-optional) properties
   const averages = useMemo(() => {
-    // Extract values from data with fallback to 0
     const rawAverages = {
       protein: Number(data?.data?.averages?.protein ?? 0),
       carbs: Number(data?.data?.averages?.carbs ?? 0),
       fat: Number(data?.data?.averages?.fat ?? 0)
     };
     
-    // Ensure we have a fully compliant MacroNutrients object with no optional properties
     return ensureCompleteMacros(rawAverages);
   }, [data?.data?.averages]);
   
-  // Create macro data for the charts
   const macroData = useMemo(() => [
     { 
       name: 'Protein', 
@@ -92,7 +85,6 @@ export const useNutritionAnalysisData = (days: number = 7) => {
     }
   ], [averages, userPreferences?.macroTargets, userPreferences?.dailyCalorieGoal]);
   
-  // Check if there's data to display
   const hasData = (data?.data?.averages && data.data.averages.calories > 0) || 
                   (mealLogsData?.data && mealLogsData.data.length > 0);
   

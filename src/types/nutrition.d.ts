@@ -1,5 +1,5 @@
 
-// Extending existing file with more type definitions
+// Type definitions for nutrition
 
 // Define an interface with non-optional properties for macronutrients
 export interface MacroNutrients {
@@ -8,11 +8,5 @@ export interface MacroNutrients {
   fat: number;
 }
 
-// Ensure we have default values when needed
-export function ensureCompleteMacros(macros: Partial<MacroNutrients>): MacroNutrients {
-  return {
-    protein: macros.protein ?? 0,
-    carbs: macros.carbs ?? 0,
-    fat: macros.fat ?? 0
-  };
-}
+// Declaration only - implementation will be in nutrition.ts
+export function ensureCompleteMacros(macros: Partial<MacroNutrients>): MacroNutrients;
