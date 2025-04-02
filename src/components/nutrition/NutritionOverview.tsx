@@ -11,6 +11,7 @@ import { NutritionAnalysisLoading } from './NutritionAnalysisLoading';
 import { NutritionAnalysisEmpty } from './NutritionAnalysisEmpty';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 import { Lightbulb, BarChart, PieChart, Calendar } from 'lucide-react';
+import { ensureCompleteMacros, MacroNutrients } from '@/types/nutrition';
 
 interface NutritionOverviewProps {
   days?: number;

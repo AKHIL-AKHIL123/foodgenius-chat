@@ -10,6 +10,7 @@ import { MacrosChart } from './nutrition/MacrosChart';
 import { MealTypeChart } from './nutrition/MealTypeChart';
 import { TrendsChart } from './nutrition/TrendsChart';
 import { useNutritionAnalysisData } from '@/hooks/useNutritionAnalysisData';
+import { ensureCompleteMacros } from '@/types/nutrition';
 
 interface NutritionAnalysisProps {
   days?: number;
@@ -73,7 +74,7 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
             <TabsContent value="macros" className="pt-2">
               <MacrosChart 
                 macroData={macroData}
-                averages={averages} 
+                averages={averages}
                 macroTargets={macroTargets}
               />
             </TabsContent>
