@@ -38,7 +38,7 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
     return <NutritionAnalysisEmpty calorieGoal={calorieGoal} />;
   }
   
-  // No need to call ensureCompleteMacros here as it's already done in the hook
+  // No need for ensureCompleteMacros here as it's already done in the hook
   
   return (
     <Card className="overflow-hidden">
@@ -73,7 +73,7 @@ const NutritionAnalysis: React.FC<NutritionAnalysisProps> = ({ days = 7 }) => {
             <TabsContent value="macros" className="pt-2">
               <MacrosChart 
                 macroData={macroData}
-                averages={averages} // This is already complete from the hook
+                averages={averages} 
                 macroTargets={macroTargets}
               />
             </TabsContent>
