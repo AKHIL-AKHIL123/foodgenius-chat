@@ -30,6 +30,9 @@ const NutritionOverview: React.FC<NutritionOverviewProps> = ({
   if (isLoading) return <NutritionAnalysisLoading />;
   if (!hasData) return <NutritionAnalysisEmpty calorieGoal={calorieGoal} />;
   
+  // Ensure we have complete macros with all required properties
+  const completeMacros = ensureCompleteMacros(averages);
+  
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -49,7 +52,7 @@ const NutritionOverview: React.FC<NutritionOverviewProps> = ({
           <CardContent>
             <MacrosChart 
               macroData={macroData}
-              averages={averages}
+              averages={completeMacros}
               macroTargets={userPreferences?.macroTargets || { protein: 25, carbs: 50, fat: 25 }}
             />
           </CardContent>
